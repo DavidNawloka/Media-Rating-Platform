@@ -1,5 +1,7 @@
 package at.fhtw.swen1.service;
 
+import at.fhtw.swen1.exception.UserAlreadyExistsException;
+import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.repository.UserRepository;
 
@@ -10,16 +12,18 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User register(String username, String password){
+    public User register(String username, String password) throws UserAlreadyExistsException, ValidationException {
         if(username == null || username.trim().isEmpty()){
-            throw new IllegalArgumentException("Username must not be null or empty");
+            throw new ValidationException("Username is required");
         }
-        if(password == null || password.trim().isEmpty()){
-            throw new IllegalArgumentException("Password must not be null or empty");
+        if(password == null || password.trim().isEmpty() || password.length() < 6){
+            throw new ValidationException("Password must be at least 6 characters");
         }
 
+
+
         if(userRepository.findByUsername(username) != null){
-            throw new IllegalArgumentException("Username already exists");
+            throw new UserAlreadyExistsException("Username '" + username +"' already exists");
         }
         User user = new User(username, password);
         return userRepository.save(user);

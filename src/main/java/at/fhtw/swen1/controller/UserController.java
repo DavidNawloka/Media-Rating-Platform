@@ -1,7 +1,10 @@
 package at.fhtw.swen1.controller;
 
+import at.fhtw.swen1.dto.ErrorResponse;
 import at.fhtw.swen1.dto.RegisterRequest;
 import at.fhtw.swen1.dto.RegisterResponse;
+import at.fhtw.swen1.exception.UserAlreadyExistsException;
+import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.service.UserService;
 import at.fhtw.swen1.util.JsonUtil;
@@ -47,10 +50,19 @@ public class UserController implements HttpHandler {
 
             String responseJson = JsonUtil.toJson(response);
             sendResponse(exchange,201, responseJson);
-        }catch(IllegalArgumentException e){
-            sendResponse(exchange, 400, "{\"error\":\"" + e.getMessage() + "\"}");
+        }catch(ValidationException e){
+            ErrorResponse error = new ErrorResponse("Validation error", e.getMessage(), 400, System.currentTimeMillis());
+            String responseJson = JsonUtil.toJson(error);
+            sendResponse(exchange, 400, responseJson);
+        }catch(UserAlreadyExistsException e){
+            ErrorResponse error = new ErrorResponse("User exists error", e.getMessage(), 409, System.currentTimeMillis());
+            String responseJson = JsonUtil.toJson(error);
+            sendResponse(exchange, 409, responseJson);
         }catch(Exception e){
-            sendResponse(exchange, 500, "{\"error\":\"Internal server error\"}");
+            System.err.println("Unexpected error: " + e.getMessage());
+            ErrorResponse error = new ErrorResponse("Internal error", "An unexpected error occurred", 500, System.currentTimeMillis());
+            String responseJson = JsonUtil.toJson(error);
+            sendResponse(exchange, 500,responseJson);
         }
     }
 
