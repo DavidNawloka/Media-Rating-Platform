@@ -5,6 +5,8 @@ import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.repository.UserRepository;
 
+import static at.fhtw.swen1.util.PasswordUtil.hashPassword;
+
 public class UserService {
     private final UserRepository userRepository;
 
@@ -20,12 +22,13 @@ public class UserService {
             throw new ValidationException("Password must be at least 6 characters");
         }
 
-
-
         if(userRepository.findByUsername(username) != null){
             throw new UserAlreadyExistsException("Username '" + username +"' already exists");
         }
-        User user = new User(username, password);
+
+        String hashedPassword = hashPassword(password);
+
+        User user = new User(username, hashedPassword);
         return userRepository.save(user);
     }
 }

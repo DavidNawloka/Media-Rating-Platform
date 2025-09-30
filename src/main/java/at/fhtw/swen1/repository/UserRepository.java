@@ -19,7 +19,7 @@ public class UserRepository {
                 User user = new User();
                 user.setId(rs.getInt("id"));
                 user.setUsername(rs.getString("username"));
-                user.setPassword(rs.getString("password"));
+                user.setHashedPassword(rs.getString("password"));
                 user.setEmail(rs.getString("email"));
                 return user;
             }
@@ -36,7 +36,7 @@ public class UserRepository {
              PreparedStatement stmt = conn.prepareStatement(sql)){
 
             stmt.setString(1, user.getUsername());
-            stmt.setString(2, user.getPassword());
+            stmt.setString(2, user.getHashedPassword());
             stmt.setString(3, user.getEmail());
 
             ResultSet rs = stmt.executeQuery();
