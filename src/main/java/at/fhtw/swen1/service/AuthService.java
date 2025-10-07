@@ -60,6 +60,19 @@ public class AuthService {
         return createNewSession(user.getId());
     }
 
+    public int getLoggedInUser(String token){
+        Session session = sessionRepository.getSession(token);
+        if(session == null ){
+            return -1;
+        }
+        if(session.getExpiresAt().before(new Timestamp(System.currentTimeMillis()))){
+            sessionRepository.deleteSession(token);
+            return -1;
+        }
+
+        return session.getUserId();
+    }
+
     private Session createNewSession(int userId) {
         String token = TokenUtil.generateToken();
         Timestamp expirationDate = TokenUtil.getExpirationDate();
@@ -69,4 +82,6 @@ public class AuthService {
         sessionRepository.createSession(newSession);
         return newSession;
     }
+
+
 }

@@ -1,5 +1,6 @@
 package at.fhtw.swen1.service;
 
+import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.repository.UserRepository;
 
 public class UserService {
@@ -7,6 +8,10 @@ public class UserService {
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    public User getUserProfile(int userId){
+        return userRepository.findById(userId);
     }
 
 

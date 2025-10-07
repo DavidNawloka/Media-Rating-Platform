@@ -30,6 +30,28 @@ public class UserRepository {
         }
     }
 
+    public User findById(int id){
+        String sql = "SELECT username, email FROM users WHERE id = ?";
+
+        try( Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)){
+
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if(rs.next()){
+                User user = new User();
+                user.setUsername(rs.getString("username"));
+                user.setEmail(rs.getString("email"));
+                return user;
+            }
+            return null;
+
+        }catch (SQLException e){
+            throw new RuntimeException("Database error while finding user"+e);
+        }
+    }
+
     public User save(User user){
         String sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?) RETURNING id";
         try( Connection conn = DatabaseConnection.getConnection();
