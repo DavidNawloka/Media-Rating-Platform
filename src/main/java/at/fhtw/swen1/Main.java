@@ -1,6 +1,7 @@
 package at.fhtw.swen1;
 
 import at.fhtw.swen1.controller.Controller;
+import at.fhtw.swen1.controller.AuthController;
 import at.fhtw.swen1.controller.UserController;
 import at.fhtw.swen1.repository.SessionRepository;
 import at.fhtw.swen1.repository.UserRepository;
@@ -20,10 +21,13 @@ public class Main {
             SessionRepository sessionRepository = new SessionRepository();
             UserService userService = new UserService(userRepository);
             AuthService authService = new AuthService(userRepository, sessionRepository);
-            Controller controller = new UserController(userService,authService);
+            Controller authController = new AuthController(authService);
+            Controller userController = new UserController(userService, authService);
 
             server = HttpServer.create(new InetSocketAddress(8080),0);
-            server.createContext("/api/users", controller);
+            server.createContext("/api/users/register", authController);
+            server.createContext("/api/users/login", authController);
+            server.createContext("/api/users", userController);
             server.start();
 
             registerShutdownHandlers();
