@@ -6,10 +6,19 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 public abstract class Controller implements HttpHandler {
+
+
     @Override
     public abstract void handle(HttpExchange exchange) throws IOException;
+
+    protected <T> T getDTO(HttpExchange exchange, Class<T> expectedDTO) throws IOException {
+        InputStream requestBody = exchange.getRequestBody();
+        String json = new String(requestBody.readAllBytes());
+        return JsonUtil.fromJson(json, expectedDTO);
+    }
 
     protected void handleError(String error, String errorMessage, int code, HttpExchange exchange) throws IOException {
         ErrorResponse errorResponse = new ErrorResponse(error, errorMessage, code, System.currentTimeMillis());

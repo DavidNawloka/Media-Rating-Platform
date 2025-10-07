@@ -12,7 +12,6 @@ import at.fhtw.swen1.util.JsonUtil;
 import com.sun.net.httpserver.HttpExchange;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 public class UserController extends Controller {
     private final UserService userService;
@@ -42,9 +41,7 @@ public class UserController extends Controller {
 
     private void handleLogin(HttpExchange exchange) throws IOException{
         try{
-            InputStream requestBody = exchange.getRequestBody();
-            String json = new String(requestBody.readAllBytes());
-            AuthRequest authRequest = JsonUtil.fromJson(json, AuthRequest.class);
+            AuthRequest authRequest = getDTO(exchange, AuthRequest.class);
 
             Session session = authService.login(authRequest.getUsername(), authRequest.getPassword());
 
@@ -66,12 +63,9 @@ public class UserController extends Controller {
     }
 
 
-
     private void handleRegister(HttpExchange exchange) throws IOException{
         try{
-            InputStream requestBody = exchange.getRequestBody();
-            String json = new String(requestBody.readAllBytes());
-            AuthRequest authRequest = JsonUtil.fromJson(json, AuthRequest.class);
+            AuthRequest authRequest = getDTO(exchange, AuthRequest.class);
 
             Session createdSession = authService.register(authRequest.getUsername(), authRequest.getPassword());
 
