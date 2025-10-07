@@ -1,5 +1,8 @@
 package at.fhtw.swen1.dto;
 
+import lombok.Getter;
+
+@Getter
 public class ErrorResponse {
     private String error;
     private String message;
@@ -13,16 +16,4 @@ public class ErrorResponse {
         this.timestamp = timestamp;
     }
 
-    public String getError() {
-        return error;
-    }
-    public String getMessage() {
-        return message;
-    }
-    public int getCode() {
-        return code;
-    }
-    public long getTimestamp() {
-        return timestamp;
-    }
 }

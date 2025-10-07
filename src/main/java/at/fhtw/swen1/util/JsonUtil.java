@@ -9,7 +9,7 @@ public class JsonUtil {
         try {
             return objectMapper.writeValueAsString(object);
         } catch (Exception e) {
-            throw new RuntimeException("Error converting to JSON",e);
+            throw new RuntimeException("Error converting to JSON"+e);
         }
     }
 
