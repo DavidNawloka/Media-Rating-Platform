@@ -23,7 +23,7 @@ public class AuthService {
         this.sessionRepository = sessionRepository;
     }
 
-    public User register(String username, String password) throws UserAlreadyExistsException, ValidationException {
+    public Session register(String username, String password) throws UserAlreadyExistsException, ValidationException {
         if(!AuthValidationService.isValidUsername(username) || !AuthValidationService.isValidPassword(password) ){
             throw new ValidationException("Username and password are required");
         }
@@ -38,7 +38,8 @@ public class AuthService {
         String hashedPassword = HashUtil.hashString(password);
 
         User user = new User(username, hashedPassword);
-        return userRepository.save(user);
+        user = userRepository.save(user);
+        return createNewSession(user.getId());
     }
 
     public Session login(String username, String password) throws ValidationException, CredentialsException {
@@ -56,13 +57,16 @@ public class AuthService {
             throw new CredentialsException("Invalid credentials");
         }
 
+        return createNewSession(user.getId());
+    }
+
+    private Session createNewSession(int userId) {
         String token = TokenUtil.generateToken();
         Timestamp expirationDate = TokenUtil.getExpirationDate();
 
-        Session newSession = new Session(token, user.getId(), expirationDate);
+        Session newSession = new Session(token, userId, expirationDate);
 
         sessionRepository.createSession(newSession);
-
         return newSession;
     }
 }

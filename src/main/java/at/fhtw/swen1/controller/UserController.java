@@ -1,13 +1,11 @@
 package at.fhtw.swen1.controller;
 
 import at.fhtw.swen1.dto.AuthRequest;
-import at.fhtw.swen1.dto.LoginResponse;
-import at.fhtw.swen1.dto.RegisterResponse;
+import at.fhtw.swen1.dto.AuthResponse;
 import at.fhtw.swen1.exception.CredentialsException;
 import at.fhtw.swen1.exception.UserAlreadyExistsException;
 import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.Session;
-import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.service.AuthService;
 import at.fhtw.swen1.service.UserService;
 import at.fhtw.swen1.util.JsonUtil;
@@ -50,7 +48,7 @@ public class UserController extends Controller {
 
             Session session = authService.login(authRequest.getUsername(), authRequest.getPassword());
 
-            LoginResponse response = new LoginResponse(session.getToken());
+            AuthResponse response = new AuthResponse(session.getToken());
 
             String responseJson = JsonUtil.toJson(response);
             sendResponse(exchange,200, responseJson);
@@ -75,12 +73,10 @@ public class UserController extends Controller {
             String json = new String(requestBody.readAllBytes());
             AuthRequest authRequest = JsonUtil.fromJson(json, AuthRequest.class);
 
-            User user = authService.register(authRequest.getUsername(), authRequest.getPassword());
+            Session createdSession = authService.register(authRequest.getUsername(), authRequest.getPassword());
 
-            RegisterResponse response = new RegisterResponse(
-                    user.getId(),
-                    user.getUsername(),
-                    "User registered successfully"
+            AuthResponse response = new AuthResponse(
+                    createdSession.getToken()
             );
 
             String responseJson = JsonUtil.toJson(response);
