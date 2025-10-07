@@ -1,0 +1,15 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "MRP PostgreSQL",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "MRP",
+      "Username": "admin",
+      "Password": "admin",
+      "SSLMode": "prefer",
+      "Favorite": true
+    }
+  }
+}
