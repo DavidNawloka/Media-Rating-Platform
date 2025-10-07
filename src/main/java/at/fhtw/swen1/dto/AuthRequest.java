@@ -1,6 +1,6 @@
 package at.fhtw.swen1.dto;
 
-public class RegisterRequest {
+public class AuthRequest {
     private String username;
     private String password;
 

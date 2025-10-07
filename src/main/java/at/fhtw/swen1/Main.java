@@ -1,7 +1,10 @@
 package at.fhtw.swen1;
 
+import at.fhtw.swen1.controller.Controller;
 import at.fhtw.swen1.controller.UserController;
+import at.fhtw.swen1.repository.SessionRepository;
 import at.fhtw.swen1.repository.UserRepository;
+import at.fhtw.swen1.service.AuthService;
 import at.fhtw.swen1.service.UserService;
 import com.sun.net.httpserver.HttpServer;
 import sun.misc.Signal;
@@ -14,11 +17,13 @@ public class Main {
     public static void main(String[] args) {
         try{
             UserRepository userRepository = new UserRepository();
+            SessionRepository sessionRepository = new SessionRepository();
             UserService userService = new UserService(userRepository);
-            UserController userController = new UserController(userService);
+            AuthService authService = new AuthService(userRepository, sessionRepository);
+            Controller controller = new UserController(userService,authService);
 
             server = HttpServer.create(new InetSocketAddress(8080),0);
-            server.createContext("/api/users", userController);
+            server.createContext("/api/users", controller);
             server.start();
 
             registerShutdownHandlers();

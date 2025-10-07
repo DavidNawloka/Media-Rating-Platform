@@ -14,7 +14,7 @@ services:
       - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql
     networks:
       - mrp_network
-    healthcheck: # ← Add this section
+    healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U admin -d MRP" ]
       interval: 5s
       timeout: 5s
