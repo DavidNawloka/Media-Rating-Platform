@@ -2,6 +2,7 @@ package at.fhtw.swen1.controller;
 
 import at.fhtw.swen1.dto.ProfileResponse;
 import at.fhtw.swen1.dto.ProfileUpdateRequest;
+import at.fhtw.swen1.exception.GenreNotExistsException;
 import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.service.AuthService;
 import at.fhtw.swen1.service.UserService;
@@ -66,15 +67,15 @@ public class UserController extends Controller{
 
             ProfileUpdateRequest profileUpdateRequest = getDTO(exchange, ProfileUpdateRequest.class);
 
-            User newUser = userService.updateUserProfile(profileUpdateRequest.getUsername(),profileUpdateRequest.getEmail(),userId);
+            User newUser = userService.updateUserProfile(profileUpdateRequest.getUsername(),profileUpdateRequest.getEmail(),profileUpdateRequest.getFavoriteGenreId(),userId);
 
             ProfileResponse profileResponse = new ProfileResponse(newUser);
             sendResponse(exchange,200, JsonUtil.toJson(profileResponse));
 
-
-
-
-        }catch(Exception e){
+        }catch(GenreNotExistsException e){
+            handleError("Genre not found", e.getMessage(), 404, exchange);
+        }
+        catch(Exception e){
             System.err.println("Unexpected error: " + e.getMessage());
             handleError("Internal error", "An unexpected error occurred", 500, exchange);
         }

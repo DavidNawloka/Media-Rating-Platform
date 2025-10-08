@@ -7,7 +7,7 @@ import java.sql.*;
 
 public class UserRepository {
     public User findByUsername(String username) {
-        String sql = "SELECT id, username, password, email FROM users WHERE username = ?";
+        String sql = "SELECT id, username, password, email, favorite_genre_id FROM users WHERE username = ?";
 
         try( Connection conn = DatabaseConnection.getConnection();
         PreparedStatement stmt = conn.prepareStatement(sql)){
@@ -21,6 +21,31 @@ public class UserRepository {
                 user.setUsername(rs.getString("username"));
                 user.setHashedPassword(rs.getString("password"));
                 user.setEmail(rs.getString("email"));
+                user.setFavoriteGenreId(rs.getInt("favorite_genre_id"));
+                return user;
+            }
+            return null;
+
+        }catch (SQLException e){
+            throw new RuntimeException("Database error while finding user"+e);
+        }
+    }
+    public User findByEmail(String email) {
+        String sql = "SELECT id, username, password, email, favorite_genre_id FROM users WHERE email = ?";
+
+        try( Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)){
+
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+
+            if(rs.next()){
+                User user = new User();
+                user.setId(rs.getInt("id"));
+                user.setUsername(rs.getString("username"));
+                user.setHashedPassword(rs.getString("password"));
+                user.setEmail(rs.getString("email"));
+                user.setFavoriteGenreId(rs.getInt("favorite_genre_id"));
                 return user;
             }
             return null;
@@ -30,8 +55,9 @@ public class UserRepository {
         }
     }
 
+
     public User findById(int id){
-        String sql = "SELECT username, email FROM users WHERE id = ?";
+        String sql = "SELECT username, email, favorite_genre_id FROM users WHERE id = ?";
 
         try( Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)){
@@ -43,6 +69,7 @@ public class UserRepository {
                 User user = new User();
                 user.setUsername(rs.getString("username"));
                 user.setEmail(rs.getString("email"));
+                user.setFavoriteGenreId(rs.getInt("favorite_genre_id"));
                 return user;
             }
             return null;
@@ -75,20 +102,26 @@ public class UserRepository {
 
     }
 
-    public User update(String username, String email, int userId){
-        String sql = "UPDATE users SET username = ?, email = ? WHERE id = ?";
+    public User update(String username, String email, Integer favoriteGenreId, int userId){
+        String sql = "UPDATE users SET username = ?, email = ?, favorite_genre_id = ? WHERE id = ?";
         try( Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)){
 
             stmt.setString(1, username);
             stmt.setString(2, email);
-            stmt.setInt(3, userId);
+            if(favoriteGenreId == null){
+                stmt.setNull(3, Types.INTEGER);
+            }else{
+                stmt.setInt(3, favoriteGenreId);
+            }
+            stmt.setInt(4, userId);
 
             stmt.executeUpdate();
 
             User user = new User();
             user.setEmail(email);
             user.setUsername(username);
+            user.setFavoriteGenreId(favoriteGenreId);
             return user;
 
         }catch (SQLException e){

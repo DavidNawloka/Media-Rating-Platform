@@ -1,7 +1,8 @@
 package at.fhtw.swen1.controller;
 
-import at.fhtw.swen1.dto.AuthRequest;
+import at.fhtw.swen1.dto.LoginRequest;
 import at.fhtw.swen1.dto.AuthResponse;
+import at.fhtw.swen1.dto.RegisterRequest;
 import at.fhtw.swen1.exception.CredentialsException;
 import at.fhtw.swen1.exception.UserAlreadyExistsException;
 import at.fhtw.swen1.exception.ValidationException;
@@ -38,9 +39,9 @@ public class AuthController extends Controller {
 
     private void handleLogin(HttpExchange exchange) throws IOException{
         try{
-            AuthRequest authRequest = getDTO(exchange, AuthRequest.class);
+            LoginRequest loginRequest = getDTO(exchange, LoginRequest.class);
 
-            Session session = authService.login(authRequest.getUsername(), authRequest.getPassword());
+            Session session = authService.login(loginRequest.getUsernameOrEmail(), loginRequest.getPassword());
 
             AuthResponse response = new AuthResponse(session.getToken());
 
@@ -62,9 +63,9 @@ public class AuthController extends Controller {
 
     private void handleRegister(HttpExchange exchange) throws IOException{
         try{
-            AuthRequest authRequest = getDTO(exchange, AuthRequest.class);
+            RegisterRequest registerRequest = getDTO(exchange, RegisterRequest.class);
 
-            Session createdSession = authService.register(authRequest.getUsername(), authRequest.getPassword());
+            Session createdSession = authService.register(registerRequest.getUsername(), registerRequest.getEmail(), registerRequest.getPassword());
 
             AuthResponse response = new AuthResponse(
                     createdSession.getToken()

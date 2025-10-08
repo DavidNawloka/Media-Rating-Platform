@@ -6,6 +6,14 @@ public class AuthValidationService extends ValidationService{
         return !isNullOrEmpty(username);
     }
 
+    public static boolean isValidUsernameOrEmail(String usernameOrEmail){
+        return isValidUsername(usernameOrEmail) || isValidEmail(usernameOrEmail);
+    }
+
+    public static boolean isValidEmail(String email){
+        return !isNullOrEmpty(email);
+    }
+
     public static boolean isValidPassword(String password){
         return !isNullOrEmpty(password);
     }

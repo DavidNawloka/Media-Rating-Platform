@@ -23,8 +23,8 @@ public class AuthService {
         this.sessionRepository = sessionRepository;
     }
 
-    public Session register(String username, String password) throws UserAlreadyExistsException, ValidationException {
-        if(!AuthValidationService.isValidUsername(username) || !AuthValidationService.isValidPassword(password) ){
+    public Session register(String username, String email, String password) throws UserAlreadyExistsException, ValidationException {
+        if(!AuthValidationService.isValidUsername(username) || !AuthValidationService.isValidPassword(password) || !AuthValidationService.isValidEmail(email)){
             throw new ValidationException("Username and password are required");
         }
         if(!AuthValidationService.isSecurePassword(password)){
@@ -34,23 +34,29 @@ public class AuthService {
         if(userRepository.findByUsername(username) != null){
             throw new UserAlreadyExistsException("Username '" + username +"' already exists");
         }
+        if(userRepository.findByEmail(email) != null){
+            throw new UserAlreadyExistsException("Email '" + email +"' already exists");
+        }
 
         String hashedPassword = HashUtil.hashString(password);
 
-        User user = new User(username, hashedPassword);
+        User user = new User(username, email, hashedPassword);
         user = userRepository.save(user);
         return createNewSession(user.getId());
     }
 
-    public Session login(String username, String password) throws ValidationException, CredentialsException {
-        if(!AuthValidationService.isValidUsername(username) || !AuthValidationService.isValidPassword(password)){
+    public Session login(String usernameOrEmail, String password) throws ValidationException, CredentialsException {
+        if(!AuthValidationService.isValidUsernameOrEmail(usernameOrEmail) || !AuthValidationService.isValidPassword(password)){
             throw new ValidationException("Username and password are required");
         }
 
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(usernameOrEmail);
 
         if(user == null){
-            throw new CredentialsException("Invalid credentials");
+            user = userRepository.findByEmail(usernameOrEmail);
+            if(user == null){
+                throw new CredentialsException("Invalid credentials");
+            }
         }
 
         if(!HashUtil.isEqualStringHash(password, user.getHashedPassword())){
