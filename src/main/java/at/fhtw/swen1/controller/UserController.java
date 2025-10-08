@@ -66,9 +66,11 @@ public class UserController extends Controller{
 
             ProfileUpdateRequest profileUpdateRequest = getDTO(exchange, ProfileUpdateRequest.class);
 
-            userService.updateUserProfile(profileUpdateRequest.getUsername(),profileUpdateRequest.getEmail(),userId);
+            User newUser = userService.updateUserProfile(profileUpdateRequest.getUsername(),profileUpdateRequest.getEmail(),userId);
 
-            sendResponse(exchange,200);
+            ProfileResponse profileResponse = new ProfileResponse(newUser);
+            sendResponse(exchange,200, JsonUtil.toJson(profileResponse));
+
 
 
 

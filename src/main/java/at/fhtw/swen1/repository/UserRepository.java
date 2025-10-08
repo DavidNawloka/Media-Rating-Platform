@@ -75,7 +75,7 @@ public class UserRepository {
 
     }
 
-    public void update(String username, String email, int userId){
+    public User update(String username, String email, int userId){
         String sql = "UPDATE users SET username = ?, email = ? WHERE id = ?";
         try( Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)){
@@ -85,6 +85,11 @@ public class UserRepository {
             stmt.setInt(3, userId);
 
             stmt.executeUpdate();
+
+            User user = new User();
+            user.setEmail(email);
+            user.setUsername(username);
+            return user;
 
         }catch (SQLException e){
             throw new RuntimeException("Database error while finding user",e);

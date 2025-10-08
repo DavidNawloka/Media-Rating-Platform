@@ -14,8 +14,8 @@ public class UserService {
         return userRepository.findById(userId);
     }
 
-    public void updateUserProfile(String username, String email, int userId){
-        userRepository.update(username, email, userId);
+    public User updateUserProfile(String username, String email, int userId){
+        return userRepository.update(username, email, userId);
     }
 
 
