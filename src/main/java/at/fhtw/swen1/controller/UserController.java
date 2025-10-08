@@ -1,6 +1,7 @@
 package at.fhtw.swen1.controller;
 
 import at.fhtw.swen1.dto.ProfileResponse;
+import at.fhtw.swen1.dto.ProfileUpdateRequest;
 import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.service.AuthService;
 import at.fhtw.swen1.service.UserService;
@@ -24,10 +25,17 @@ public class UserController extends Controller{
     public void handle(HttpExchange exchange) throws IOException {
         String path = exchange.getRequestURI().getPath();
         String method = exchange.getRequestMethod();
-        if(path.matches("/api/users/\\d+/profile") && method.equals("GET")){
+        if(path.matches("/api/users/\\d+/profile")){
             String[] pathParts = path.split("/");
             int userId = parseInt(pathParts[3]);
-            handleGetProfile(exchange,userId);
+
+            if(method.equals("GET")){
+                handleGetProfile(exchange,userId);
+            }
+            else if(method.equals("PUT")){
+                handleUpdateProfile(exchange,userId);
+            }
+
         }
 
         handleError("Not found", "Incorrect path", 404, exchange);
@@ -35,12 +43,7 @@ public class UserController extends Controller{
 
     private void handleGetProfile(HttpExchange exchange, int requestUserId) throws IOException{
         try{
-            String token = extractBearerToken(exchange);
-            int loggedInUserId = authService.getLoggedInUser(token);
-            if(loggedInUserId == -1 || loggedInUserId != requestUserId){
-                handleError("Unauthorized", "User is not logged in", 401, exchange);
-                return;
-            }
+            int loggedInUserId = getLoggedInUserId(exchange, requestUserId);
 
             User user = userService.getUserProfile(loggedInUserId);
 
@@ -53,5 +56,35 @@ public class UserController extends Controller{
             System.err.println("Unexpected error: " + e.getMessage());
             handleError("Internal error", "An unexpected error occurred", 500, exchange);
         }
+    }
+
+
+
+    private void handleUpdateProfile(HttpExchange exchange, int requestUserId) throws IOException{
+        try{
+            int userId = getLoggedInUserId(exchange,requestUserId);
+
+            ProfileUpdateRequest profileUpdateRequest = getDTO(exchange, ProfileUpdateRequest.class);
+
+            userService.updateUserProfile(profileUpdateRequest.getUsername(),profileUpdateRequest.getEmail(),userId);
+
+            sendResponse(exchange,200);
+
+
+
+        }catch(Exception e){
+            System.err.println("Unexpected error: " + e.getMessage());
+            handleError("Internal error", "An unexpected error occurred", 500, exchange);
+        }
+    }
+
+
+    private int getLoggedInUserId(HttpExchange exchange, int requestUserId) throws IOException {
+        String token = extractBearerToken(exchange);
+        int loggedInUserId = authService.getLoggedInUser(token);
+        if(loggedInUserId == -1 || loggedInUserId != requestUserId){
+            handleError("Unauthorized", "User is not logged in", 401, exchange);
+        }
+        return loggedInUserId;
     }
 }

@@ -42,4 +42,12 @@ public abstract class Controller implements HttpHandler {
         exchange.getResponseBody().write(responseJson.getBytes());
         exchange.close();
     }
+
+    protected void sendResponse(HttpExchange exchange, int statusCode) throws IOException {
+        exchange.getResponseHeaders().set("Content-Type", "application/json");
+        exchange.sendResponseHeaders(statusCode, -1);
+        exchange.close();
+    }
+
+
 }
