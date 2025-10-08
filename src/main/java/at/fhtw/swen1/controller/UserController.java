@@ -3,6 +3,8 @@ package at.fhtw.swen1.controller;
 import at.fhtw.swen1.dto.ProfileResponse;
 import at.fhtw.swen1.dto.ProfileUpdateRequest;
 import at.fhtw.swen1.exception.GenreNotExistsException;
+import at.fhtw.swen1.exception.UserAlreadyExistsException;
+import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.service.AuthService;
 import at.fhtw.swen1.service.UserService;
@@ -72,7 +74,10 @@ public class UserController extends Controller{
             ProfileResponse profileResponse = new ProfileResponse(newUser);
             sendResponse(exchange,200, JsonUtil.toJson(profileResponse));
 
-        }catch(GenreNotExistsException e){
+        }catch(UserAlreadyExistsException e){
+            handleError("User already exists", e.getMessage(), 409, exchange);
+        }
+        catch(GenreNotExistsException e){
             handleError("Genre not found", e.getMessage(), 404, exchange);
         }
         catch(Exception e){

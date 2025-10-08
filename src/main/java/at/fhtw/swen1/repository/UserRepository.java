@@ -21,7 +21,8 @@ public class UserRepository {
                 user.setUsername(rs.getString("username"));
                 user.setHashedPassword(rs.getString("password"));
                 user.setEmail(rs.getString("email"));
-                user.setFavoriteGenreId(rs.getInt("favorite_genre_id"));
+                Integer favoriteGenreId = rs.getObject("favorite_genre_id", Integer.class);
+                user.setFavoriteGenreId(favoriteGenreId);
                 return user;
             }
             return null;
@@ -45,7 +46,8 @@ public class UserRepository {
                 user.setUsername(rs.getString("username"));
                 user.setHashedPassword(rs.getString("password"));
                 user.setEmail(rs.getString("email"));
-                user.setFavoriteGenreId(rs.getInt("favorite_genre_id"));
+                Integer favoriteGenreId = rs.getObject("favorite_genre_id", Integer.class);
+                user.setFavoriteGenreId(favoriteGenreId);
                 return user;
             }
             return null;
@@ -69,7 +71,8 @@ public class UserRepository {
                 User user = new User();
                 user.setUsername(rs.getString("username"));
                 user.setEmail(rs.getString("email"));
-                user.setFavoriteGenreId(rs.getInt("favorite_genre_id"));
+                Integer favoriteGenreId = rs.getObject("favorite_genre_id", Integer.class);
+                user.setFavoriteGenreId(favoriteGenreId);
                 return user;
             }
             return null;

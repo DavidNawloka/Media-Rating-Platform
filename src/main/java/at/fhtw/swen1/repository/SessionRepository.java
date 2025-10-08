@@ -7,7 +7,7 @@ import java.sql.*;
 
 public class SessionRepository {
     public void createSession(Session session) {
-        String sql = "INSERT INTO sessions (token,userId,expiresAt) VALUES (?, ?, ?) ";
+        String sql = "INSERT INTO sessions (token,user_id,expires_at) VALUES (?, ?, ?) ";
         try(Connection conn = DatabaseConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
 
@@ -39,7 +39,7 @@ public class SessionRepository {
 
     public Session getSession(String token) {
 
-        String sql = "SELECT userId,expiresAt from sessions where token = ? ";
+        String sql = "SELECT user_id,expires_at from sessions where token = ? ";
         try(Connection conn = DatabaseConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
 
@@ -47,7 +47,7 @@ public class SessionRepository {
 
             ResultSet rs = stmt.executeQuery();
             if(rs.next()){
-                Session session = new Session(token, rs.getInt("userId"), rs.getTimestamp("expiresAt"));
+                Session session = new Session(token, rs.getInt("user_id"), rs.getTimestamp("expires_at"));
                 String test;
                 return session;
             }
