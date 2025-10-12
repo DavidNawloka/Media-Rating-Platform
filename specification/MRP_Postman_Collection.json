@@ -176,7 +176,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Inception\",\n  \"description\": \"Sci-fi thriller\",\n  \"mediaType\": \"movie\",\n  \"releaseYear\": 2010,\n  \"genres\": [\n    \"sci-fi\",\n    \"thriller\"\n  ],\n  \"ageRestriction\": 12\n}"
+              "raw": "{\n  \"title\": \"Inception\",\n  \"description\": \"Sci-fi thriller\",\n  \"mediaType\": \"movie\",\n  \"releaseYear\": 2010,\n  \"genreIds\": [\n    1,\n    2\n  ],\n  \"ageRestriction\": 12\n}"
             }
           }
         },
