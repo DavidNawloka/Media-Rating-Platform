@@ -31,7 +31,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"user1\",\n  \"password\": \"pass123\"\n}"
+              "raw": "{\n  \"username\": \"user1\",\n \"email\": \"user1@gmail.com\",\n  \"password\": \"pass123\"\n}"
             }
           }
         },
@@ -58,7 +58,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"user1\",\n  \"password\": \"pass123\"\n}"
+              "raw": "{\n  \"usernameOrEmail\": \"user1\",\n  \"password\": \"pass123\"\n}"
             }
           }
         }
@@ -145,7 +145,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"user1@example.com\",\n  \"favoriteGenre\": \"sci-fi\"\n}"
+              "raw": "{\n  \"email\": \"user1@example.com\",\n  \"username\": \"user1\",\n \"favoriteGenreId\": 2\n}"
             }
           }
         }

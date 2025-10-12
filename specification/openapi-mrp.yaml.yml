@@ -24,7 +24,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserCredentials'
+              $ref: '#/components/schemas/UserRegistration'
       responses:
         '201':
           description: User registered
@@ -342,13 +342,26 @@ paths:
           description: Comment confirmed
 components:
   schemas:
+    UserRegistration:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
     UserCredentials:
       type: object
       required:
-      - username
+      - usernameOrEmail
       - password
       properties:
-        username:
+        usernameOrEmail:
           type: string
         password:
           type: string
@@ -383,5 +396,7 @@ components:
       properties:
         email:
           type: string
-        favoriteGenre:
+        username:
           type: string
+        favoriteGenreId:
+          type: integer

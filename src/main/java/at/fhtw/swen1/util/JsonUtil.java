@@ -17,7 +17,7 @@ public class JsonUtil {
         try {
             return objectMapper.readValue(json, clazz);
         } catch (Exception e) {
-            throw new RuntimeException("Error converting from JSON",e);
+            throw new RuntimeException("Error converting from JSON"+e);
         }
     }
 }
