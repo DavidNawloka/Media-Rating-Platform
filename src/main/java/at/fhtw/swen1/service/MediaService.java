@@ -39,4 +39,13 @@ public class MediaService {
 
         return createdMedia;
     }
+
+    public void deleteMedia(int mediaId, int loggedInUserId){
+        Media media = mediaRepository.findyById(mediaId);
+        if(media == null || media.getCreatorId() != loggedInUserId ){
+            throw new IllegalArgumentException("Media with ID: " + mediaId + " does not exist.");
+        }
+
+        mediaRepository.deleteMedia(mediaId);
+    }
 }

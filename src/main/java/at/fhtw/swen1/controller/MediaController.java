@@ -1,6 +1,7 @@
 package at.fhtw.swen1.controller;
 
 import at.fhtw.swen1.dto.MediaDTO;
+import at.fhtw.swen1.exception.GenreNotExistsException;
 import at.fhtw.swen1.model.Media;
 import at.fhtw.swen1.service.AuthService;
 import at.fhtw.swen1.service.MediaService;
@@ -28,6 +29,9 @@ public class MediaController extends Controller {
             int mediaId = parseInt(pathParts[3]);
 
             // Handle Delete, Update and Get
+            if(method.equals("DELETE")){
+                handleDeleteMedia(exchange, mediaId);
+            }
         }
         if(path.equals("/api/media")){
 
@@ -40,7 +44,7 @@ public class MediaController extends Controller {
         handleError("Not found", "Incorrect path", 404, exchange);
     }
 
-    private void handleCreateMedia(HttpExchange exchange) {
+    private void handleCreateMedia(HttpExchange exchange) throws IOException {
         try{
             int loggedInUserId = getLoggedInUserId(exchange);
 
@@ -62,8 +66,33 @@ public class MediaController extends Controller {
 
 
 
-        }catch(Exception e){
+        }catch(IllegalArgumentException e){
+            handleError("Media entry data missing", e.getMessage(), 409, exchange);
+
+        }catch(GenreNotExistsException e){
+            handleError("Genre not found", e.getMessage(), 404, exchange);
+        }
+        catch(Exception e){
             System.err.println("Unexpected error: " + e.getMessage());
+            handleError("Internal error", "An unexpected error occurred", 500, exchange);
+        }
+    }
+
+    private void handleDeleteMedia(HttpExchange exchange, int mediaId) throws IOException{
+        try{
+            int loggedInUserId = getLoggedInUserId(exchange);
+
+            mediaService.deleteMedia(mediaId, loggedInUserId);
+
+            sendResponse(exchange,204);
+
+        }catch(IllegalArgumentException e){
+            handleError("Media entry does not exist", e.getMessage(), 409, exchange);
+
+        }
+        catch(Exception e){
+            System.err.println("Unexpected error: " + e.getMessage());
+            handleError("Internal error", "An unexpected error occurred", 500, exchange);
         }
     }
 }

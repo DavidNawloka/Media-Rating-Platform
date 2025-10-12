@@ -10,4 +10,13 @@ public enum MediaType {
     MediaType(String label) {
         this.label = label;
     }
+
+    public static MediaType fromLabel(String label){
+        for(MediaType mediaType : MediaType.values()){
+            if(mediaType.label.equals(label)){
+                return mediaType;
+            }
+        }
+        return null;
+    }
 }
