@@ -100,7 +100,7 @@ public class UserRepository {
             return null;
 
         }catch (SQLException e){
-            throw new RuntimeException("Database error while finding user",e);
+            throw new RuntimeException("Database error while creating user",e);
         }
 
     }

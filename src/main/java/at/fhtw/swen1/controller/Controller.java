@@ -1,6 +1,7 @@
 package at.fhtw.swen1.controller;
 
 import at.fhtw.swen1.dto.ErrorResponse;
+import at.fhtw.swen1.service.AuthService;
 import at.fhtw.swen1.util.JsonUtil;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -10,6 +11,12 @@ import java.io.InputStream;
 
 public abstract class Controller implements HttpHandler {
 
+
+    protected final AuthService authService;
+
+    public Controller(AuthService authService) {
+        this.authService = authService;
+    }
 
     @Override
     public abstract void handle(HttpExchange exchange) throws IOException;
@@ -50,4 +57,12 @@ public abstract class Controller implements HttpHandler {
     }
 
 
+    protected int getLoggedInUserId(HttpExchange exchange) throws IOException {
+        String token = extractBearerToken(exchange);
+        int loggedInUserId = authService.getLoggedInUser(token);
+        if(loggedInUserId == -1 ){
+            handleError("Unauthorized", "User is not logged in", 401, exchange);
+        }
+        return loggedInUserId;
+    }
 }
