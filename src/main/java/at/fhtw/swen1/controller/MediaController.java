@@ -28,7 +28,8 @@ public class MediaController extends Controller {
             String[] pathParts = path.split("/");
             int mediaId = parseInt(pathParts[3]);
 
-            // Handle Delete, Update and Get
+            //TODO:  Handle Update (PUT) and GET
+
             if(method.equals("DELETE")){
                 handleDeleteMedia(exchange, mediaId);
             }
