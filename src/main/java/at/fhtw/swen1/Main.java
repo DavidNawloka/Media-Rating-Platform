@@ -4,7 +4,6 @@ import at.fhtw.swen1.controller.Controller;
 import at.fhtw.swen1.controller.AuthController;
 import at.fhtw.swen1.controller.MediaController;
 import at.fhtw.swen1.controller.UserController;
-import at.fhtw.swen1.model.Genre;
 import at.fhtw.swen1.repository.*;
 import at.fhtw.swen1.service.AuthService;
 import at.fhtw.swen1.service.MediaService;
@@ -44,7 +43,7 @@ public class Main {
 
 
         }catch(Exception e){
-            e.printStackTrace();
+            System.out.println("Server threw exception: " +  e.getMessage());
         }
     }
 

@@ -15,7 +15,7 @@ import java.io.IOException;
 import static java.lang.Integer.parseInt;
 
 public class MediaController extends Controller {
-    MediaService mediaService;
+    final MediaService mediaService;
 
     public MediaController(AuthService authService, MediaService mediaService) {
         super(authService);
@@ -68,7 +68,7 @@ public class MediaController extends Controller {
                     mediaInputRequest.getGenreIds(),
                     loggedInUserId
             );
-;
+
             sendResponse(exchange,201, JsonUtil.toJson(newMedia));
 
 

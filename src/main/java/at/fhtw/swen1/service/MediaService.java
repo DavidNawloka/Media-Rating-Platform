@@ -11,9 +11,9 @@ import at.fhtw.swen1.repository.MediaRepository;
 import at.fhtw.swen1.service.validation.ValidationService;
 
 public class MediaService {
-    private MediaRepository mediaRepository;
-    private GenreRepository genreRepository;
-    private MediaGenreRepository mediaGenreRepository;
+    private final MediaRepository mediaRepository;
+    private final GenreRepository genreRepository;
+    private final MediaGenreRepository mediaGenreRepository;
 
     public MediaService(MediaRepository mediaRepository, GenreRepository genreRepository, MediaGenreRepository mediaGenreRepository) {
         this.mediaRepository = mediaRepository;
