@@ -26,4 +26,16 @@ public class Media {
         this.genreIds = genreIds;
         this.creatorId = creatorId;
     }
+
+    public Media(int mediaId,String title, String description, MediaType mediaType, int releaseYear, int ageRestriction, int[] genreIds, int creatorId) {
+
+        this.id = mediaId;
+        this.title = title;
+        this.description = description;
+        this.mediaType = mediaType;
+        this.releaseYear = releaseYear;
+        this.ageRestriction = ageRestriction;
+        this.genreIds = genreIds;
+        this.creatorId = creatorId;
+    }
 }

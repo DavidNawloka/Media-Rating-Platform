@@ -40,6 +40,57 @@ public class MediaService {
         return createdMedia;
     }
 
+    public Media getMedia(int mediaId, int loggedInUserId){
+        Media media = mediaRepository.findyById(mediaId);
+        if(media == null || media.getCreatorId() != loggedInUserId ){
+            throw new IllegalArgumentException("Media with ID: " + mediaId + " does not exist.");
+        }
+
+        int[] genreIds = mediaGenreRepository.findGenreIdsByMediaId(mediaId);
+        media.setGenreIds(genreIds);
+        return media;
+    }
+
+    public Media updateMedia(int loggedInUserId, int mediaId,String title, String description, MediaType mediaType, int releaseYear, int ageRestriction, int[] genreIds, int creatorId) throws IllegalArgumentException, GenreNotExistsException {
+        if(ValidationService.isNullOrEmpty(title) || ValidationService.isNullOrEmpty(description) || mediaType == null || releaseYear < 0 || ageRestriction < 0 || genreIds == null || creatorId < 0){
+            throw new IllegalArgumentException("Invalid media data");
+        }
+
+        for(int genreId : genreIds){
+            if(genreRepository.getGenre(genreId) == null){
+                throw new GenreNotExistsException("Genre ID: " + genreId + " does not exist.");
+            }
+        }
+
+        Media existingMedia = getMedia(mediaId,  loggedInUserId);
+
+
+
+        int[] existingGenreIds = existingMedia.getGenreIds();
+
+        // Remove genres that are no longer in the new list
+        for(int existingId : existingGenreIds){
+            boolean shouldRemove = java.util.Arrays.stream(genreIds)
+                    .noneMatch(id -> id == existingId);
+            if(shouldRemove){
+                mediaGenreRepository.removeMediaGenre(existingMedia.getId(), existingId);
+            }
+        }
+
+        // Add genres that do not exist in the list yet
+        for(int newId : genreIds){
+            boolean shouldAdd = java.util.Arrays.stream(existingGenreIds)
+                    .noneMatch(id -> id == newId);
+            if(shouldAdd){
+                mediaGenreRepository.addMediaGenre(existingMedia.getId(), newId);
+            }
+        }
+
+        Media media = new Media(mediaId, title, description, mediaType, releaseYear, ageRestriction, genreIds, creatorId);
+
+        return mediaRepository.updateMedia(media);
+    }
+
     public void deleteMedia(int mediaId, int loggedInUserId){
         Media media = mediaRepository.findyById(mediaId);
         if(media == null || media.getCreatorId() != loggedInUserId ){

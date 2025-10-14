@@ -63,6 +63,26 @@ public class MediaRepository {
         }
     }
 
+    public Media updateMedia(Media media){
+        String sql = "UPDATE Media SET title = ?, description = ?, media_type = ?, release_year = ?, age_restriction = ? WHERE id = ?";
+        try(Connection conn = DatabaseConnection.getConnection()){
+            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            stmt.setString(1, media.getTitle());
+            stmt.setString(2, media.getDescription());
+            stmt.setString(3, media.getMediaType().label);
+            stmt.setInt(4, media.getReleaseYear());
+            stmt.setInt(5, media.getAgeRestriction());
+            stmt.setInt(6, media.getId());
+
+            stmt.executeUpdate();
+            return media;
+
+        }catch(SQLException e){
+            throw new RuntimeException("Database error while updating media entry" + e.getMessage());
+        }
+    }
+
     public void deleteMedia(int mediaId){
         String sql = "DELETE FROM media where id = ? ";
         try(Connection conn = DatabaseConnection.getConnection();

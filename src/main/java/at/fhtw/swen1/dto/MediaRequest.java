@@ -5,7 +5,7 @@ import at.fhtw.swen1.model.Media;
 import lombok.Getter;
 
 @Getter
-public class MediaDTO {
+public class MediaRequest {
     private String title;
     private String description;
     private MediaType mediaType;
@@ -13,10 +13,10 @@ public class MediaDTO {
     private int ageRestriction;
     private int[] genreIds;
 
-    public MediaDTO(){}
+    public MediaRequest(){}
 
 
-    public MediaDTO(String title, String description, MediaType mediaType, int releaseYear, int ageRestriction, int[] genreIds) {
+    public MediaRequest(String title, String description, MediaType mediaType, int releaseYear, int ageRestriction, int[] genreIds) {
         this.title = title;
         this.description = description;
         this.mediaType = mediaType;
@@ -25,7 +25,7 @@ public class MediaDTO {
         this.genreIds = genreIds;
     }
 
-    public MediaDTO(Media mediaDTO){
+    public MediaRequest(Media mediaDTO){
         this.title = mediaDTO.getTitle();
         this.description = mediaDTO.getDescription();
         this.mediaType = mediaDTO.getMediaType();

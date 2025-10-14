@@ -1,6 +1,6 @@
 package at.fhtw.swen1.controller;
 
-import at.fhtw.swen1.dto.MediaDTO;
+import at.fhtw.swen1.dto.MediaRequest;
 import at.fhtw.swen1.exception.GenreNotExistsException;
 import at.fhtw.swen1.model.Media;
 import at.fhtw.swen1.service.AuthService;
@@ -28,7 +28,13 @@ public class MediaController extends Controller {
             String[] pathParts = path.split("/");
             int mediaId = parseInt(pathParts[3]);
 
-            //TODO:  Handle Update (PUT) and GET
+            if(method.equals("PUT")){
+                handleUpdateMedia(exchange,mediaId);
+            }
+
+            if(method.equals("GET")){
+                handleGetMedia(exchange,mediaId);
+            }
 
             if(method.equals("DELETE")){
                 handleDeleteMedia(exchange, mediaId);
@@ -49,7 +55,7 @@ public class MediaController extends Controller {
         try{
             int loggedInUserId = getLoggedInUserId(exchange);
 
-            MediaDTO mediaInputRequest = getDTO(exchange, MediaDTO.class);
+            MediaRequest mediaInputRequest = getDTO(exchange, MediaRequest.class);
 
             Media newMedia = mediaService.createMedia(
                     mediaInputRequest.getTitle(),
@@ -60,9 +66,8 @@ public class MediaController extends Controller {
                     mediaInputRequest.getGenreIds(),
                     loggedInUserId
             );
-
-            MediaDTO mediaCreationResponse = new MediaDTO(newMedia);
-            sendResponse(exchange,201, JsonUtil.toJson(mediaCreationResponse));
+;
+            sendResponse(exchange,201, JsonUtil.toJson(newMedia));
 
 
 
@@ -72,6 +77,59 @@ public class MediaController extends Controller {
 
         }catch(GenreNotExistsException e){
             handleError("Genre not found", e.getMessage(), 404, exchange);
+        }
+        catch(Exception e){
+            System.err.println("Unexpected error: " + e.getMessage());
+            handleError("Internal error", "An unexpected error occurred", 500, exchange);
+        }
+    }
+
+    private void handleGetMedia(HttpExchange exchange, int mediaId) throws IOException {
+        try{
+            int loggedInUserId = getLoggedInUserId(exchange);
+
+            Media media = mediaService.getMedia(mediaId, loggedInUserId);
+
+
+            sendResponse(exchange,200, JsonUtil.toJson(media));
+
+        }catch(IllegalArgumentException e){
+            handleError("Media entry does not exist", e.getMessage(), 409, exchange);
+
+        }
+        catch(Exception e){
+            System.err.println("Unexpected error: " + e.getMessage());
+            handleError("Internal error", "An unexpected error occurred", 500, exchange);
+        }
+    }
+
+    private void handleUpdateMedia(HttpExchange exchange, int mediaId) throws IOException {
+        try{
+            int loggedInUserId = getLoggedInUserId(exchange);
+
+            MediaRequest mediaInputRequest = getDTO(exchange, MediaRequest.class);
+
+
+            Media newMedia = mediaService.updateMedia(
+                    loggedInUserId,
+                    mediaId,
+                    mediaInputRequest.getTitle(),
+                    mediaInputRequest.getDescription(),
+                    mediaInputRequest.getMediaType(),
+                    mediaInputRequest.getReleaseYear(),
+                    mediaInputRequest.getAgeRestriction(),
+                    mediaInputRequest.getGenreIds(),
+                    loggedInUserId
+            );
+
+            sendResponse(exchange,201, JsonUtil.toJson(newMedia));
+
+        }catch(GenreNotExistsException e){
+            handleError("Genre not found", e.getMessage(), 409, exchange);
+        }
+        catch(IllegalArgumentException e){
+            handleError("Media entry does not exist", e.getMessage(), 409, exchange);
+
         }
         catch(Exception e){
             System.err.println("Unexpected error: " + e.getMessage());
