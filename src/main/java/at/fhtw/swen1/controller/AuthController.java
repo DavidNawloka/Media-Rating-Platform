@@ -15,10 +15,9 @@ import java.io.IOException;
 
 
 public class AuthController extends Controller {
-    private final AuthService authService;
 
     public AuthController( AuthService authService) {
-        this.authService = authService;
+        super(authService);
     }
 
 

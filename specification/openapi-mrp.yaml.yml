@@ -376,10 +376,10 @@ components:
           type: string
         releaseYear:
           type: integer
-        genres:
+        genreIds:
           type: array
           items:
-            type: string
+            type: integer
         ageRestriction:
           type: integer
     RatingInput:

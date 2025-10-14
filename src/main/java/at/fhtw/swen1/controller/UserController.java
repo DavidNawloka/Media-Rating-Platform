@@ -4,7 +4,6 @@ import at.fhtw.swen1.dto.ProfileResponse;
 import at.fhtw.swen1.dto.ProfileUpdateRequest;
 import at.fhtw.swen1.exception.GenreNotExistsException;
 import at.fhtw.swen1.exception.UserAlreadyExistsException;
-import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.service.AuthService;
 import at.fhtw.swen1.service.UserService;
@@ -17,11 +16,10 @@ import static java.lang.Integer.parseInt;
 
 public class UserController extends Controller{
     private final UserService userService;
-    private final AuthService authService;
 
     public UserController(UserService userService, AuthService authService) {
+        super(authService);
         this.userService = userService;
-        this.authService = authService;
     }
 
     @Override
@@ -46,7 +44,11 @@ public class UserController extends Controller{
 
     private void handleGetProfile(HttpExchange exchange, int requestUserId) throws IOException{
         try{
-            int loggedInUserId = getLoggedInUserId(exchange, requestUserId);
+            int loggedInUserId = getLoggedInUserId(exchange);
+
+            if(loggedInUserId != requestUserId){
+                handleError("Unauthorized", "User cannot get other user", 401, exchange);
+            }
 
             User user = userService.getUserProfile(loggedInUserId);
 
@@ -65,7 +67,10 @@ public class UserController extends Controller{
 
     private void handleUpdateProfile(HttpExchange exchange, int requestUserId) throws IOException{
         try{
-            int userId = getLoggedInUserId(exchange,requestUserId);
+            int userId = getLoggedInUserId(exchange);
+            if(userId != requestUserId){
+                handleError("Unauthorized", "User cannot modify other user", 401, exchange);
+            }
 
             ProfileUpdateRequest profileUpdateRequest = getDTO(exchange, ProfileUpdateRequest.class);
 
@@ -87,12 +92,4 @@ public class UserController extends Controller{
     }
 
 
-    private int getLoggedInUserId(HttpExchange exchange, int requestUserId) throws IOException {
-        String token = extractBearerToken(exchange);
-        int loggedInUserId = authService.getLoggedInUser(token);
-        if(loggedInUserId == -1 || loggedInUserId != requestUserId){
-            handleError("Unauthorized", "User is not logged in", 401, exchange);
-        }
-        return loggedInUserId;
-    }
 }
