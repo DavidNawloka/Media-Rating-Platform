@@ -2,6 +2,8 @@ package at.fhtw.swen1.controller;
 
 import at.fhtw.swen1.dto.MediaRequest;
 import at.fhtw.swen1.exception.GenreNotExistsException;
+import at.fhtw.swen1.exception.MediaNotExistsException;
+import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.Media;
 import at.fhtw.swen1.service.AuthService;
 import at.fhtw.swen1.service.MediaService;
@@ -72,8 +74,8 @@ public class MediaController extends Controller {
 
 
 
-        }catch(IllegalArgumentException e){
-            handleError("Media entry data missing", e.getMessage(), 409, exchange);
+        }catch(ValidationException e){
+            handleError("Media entry data incorrect", e.getMessage(), 409, exchange);
 
         }catch(GenreNotExistsException e){
             handleError("Genre not found", e.getMessage(), 404, exchange);
@@ -93,7 +95,7 @@ public class MediaController extends Controller {
 
             sendResponse(exchange,200, JsonUtil.toJson(media));
 
-        }catch(IllegalArgumentException e){
+        }catch(MediaNotExistsException e){
             handleError("Media entry does not exist", e.getMessage(), 409, exchange);
 
         }
@@ -127,7 +129,7 @@ public class MediaController extends Controller {
         }catch(GenreNotExistsException e){
             handleError("Genre not found", e.getMessage(), 409, exchange);
         }
-        catch(IllegalArgumentException e){
+        catch(MediaNotExistsException e){
             handleError("Media entry does not exist", e.getMessage(), 409, exchange);
 
         }
@@ -145,7 +147,7 @@ public class MediaController extends Controller {
 
             sendResponse(exchange,204);
 
-        }catch(IllegalArgumentException e){
+        }catch(MediaNotExistsException e){
             handleError("Media entry does not exist", e.getMessage(), 409, exchange);
 
         }

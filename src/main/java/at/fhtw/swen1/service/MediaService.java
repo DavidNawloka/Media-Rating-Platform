@@ -2,6 +2,8 @@ package at.fhtw.swen1.service;
 
 import at.fhtw.swen1.enums.MediaType;
 import at.fhtw.swen1.exception.GenreNotExistsException;
+import at.fhtw.swen1.exception.MediaNotExistsException;
+import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.Media;
 import at.fhtw.swen1.repository.GenreRepository;
 import at.fhtw.swen1.repository.MediaGenreRepository;
@@ -19,9 +21,9 @@ public class MediaService {
         this.mediaGenreRepository = mediaGenreRepository;
     }
 
-    public Media createMedia(String title, String description, MediaType mediaType, int releaseYear, int ageRestriction, int[] genreIds, int creatorId) throws IllegalArgumentException, GenreNotExistsException {
+    public Media createMedia(String title, String description, MediaType mediaType, int releaseYear, int ageRestriction, int[] genreIds, int creatorId) throws GenreNotExistsException, ValidationException {
         if(ValidationService.isNullOrEmpty(title) || ValidationService.isNullOrEmpty(description) || mediaType == null || releaseYear < 0 || ageRestriction < 0 || genreIds == null || creatorId < 0){
-            throw new IllegalArgumentException("Invalid media data");
+            throw new ValidationException("Invalid media data");
         }
 
         for(int genreId : genreIds){
@@ -40,10 +42,10 @@ public class MediaService {
         return createdMedia;
     }
 
-    public Media getMedia(int mediaId, int loggedInUserId){
+    public Media getMedia(int mediaId, int loggedInUserId) throws MediaNotExistsException{
         Media media = mediaRepository.findyById(mediaId);
         if(media == null || media.getCreatorId() != loggedInUserId ){
-            throw new IllegalArgumentException("Media with ID: " + mediaId + " does not exist.");
+            throw new MediaNotExistsException("Media with ID: " + mediaId + " does not exist.");
         }
 
         int[] genreIds = mediaGenreRepository.findGenreIdsByMediaId(mediaId);
@@ -51,9 +53,9 @@ public class MediaService {
         return media;
     }
 
-    public Media updateMedia(int loggedInUserId, int mediaId,String title, String description, MediaType mediaType, int releaseYear, int ageRestriction, int[] genreIds, int creatorId) throws IllegalArgumentException, GenreNotExistsException {
+    public Media updateMedia(int loggedInUserId, int mediaId,String title, String description, MediaType mediaType, int releaseYear, int ageRestriction, int[] genreIds, int creatorId) throws ValidationException, GenreNotExistsException,  MediaNotExistsException {
         if(ValidationService.isNullOrEmpty(title) || ValidationService.isNullOrEmpty(description) || mediaType == null || releaseYear < 0 || ageRestriction < 0 || genreIds == null || creatorId < 0){
-            throw new IllegalArgumentException("Invalid media data");
+            throw new ValidationException("Invalid media data");
         }
 
         for(int genreId : genreIds){
@@ -91,10 +93,10 @@ public class MediaService {
         return mediaRepository.updateMedia(media);
     }
 
-    public void deleteMedia(int mediaId, int loggedInUserId){
+    public void deleteMedia(int mediaId, int loggedInUserId) throws MediaNotExistsException{
         Media media = mediaRepository.findyById(mediaId);
         if(media == null || media.getCreatorId() != loggedInUserId ){
-            throw new IllegalArgumentException("Media with ID: " + mediaId + " does not exist.");
+            throw new MediaNotExistsException("Media with ID: " + mediaId + " does not exist.");
         }
 
         mediaRepository.deleteMedia(mediaId);
