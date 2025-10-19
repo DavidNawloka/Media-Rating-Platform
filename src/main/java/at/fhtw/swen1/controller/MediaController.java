@@ -35,6 +35,7 @@ public class MediaController extends Controller {
             }
 
             if(method.equals("GET")){
+                System.out.println("GET media");
                 handleGetMedia(exchange,mediaId);
             }
 

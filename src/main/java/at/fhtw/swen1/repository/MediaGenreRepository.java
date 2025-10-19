@@ -28,7 +28,7 @@ public class MediaGenreRepository {
         }
     }
 
-    public void addMediaGenre(int mediaId, int genreId) {
+    public void save(int mediaId, int genreId) {
         String sql = "INSERT INTO media_genres (media_id, genre_id) VALUES (?, ?)";
         try(Connection conn = DatabaseConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
@@ -44,7 +44,7 @@ public class MediaGenreRepository {
         }
     }
 
-    public void removeMediaGenre(int mediaId, int genreId) {
+    public void delete(int mediaId, int genreId) {
         String sql = "DELETE FROM media_genres WHERE media_id = ? AND genre_id = ?";
         try(Connection conn = DatabaseConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){

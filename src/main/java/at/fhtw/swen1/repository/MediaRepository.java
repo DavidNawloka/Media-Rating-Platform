@@ -11,7 +11,7 @@ import java.sql.SQLException;
 
 public class MediaRepository {
 
-    public Media findyById(int mediaId) {
+    public Media findById(int mediaId) {
         String sql = "SELECT * FROM media WHERE id = ?";
 
         try( Connection conn = DatabaseConnection.getConnection();
@@ -38,7 +38,7 @@ public class MediaRepository {
         }
     }
 
-    public Media createMedia(Media media) {
+    public Media save(Media media) {
         String sql = "INSERT INTO media (title, description, media_type, release_year, age_restriction, creator_id) VALUES (?, ?, ?, ?, ?, ?) RETURNING id";
         try(Connection conn = DatabaseConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
@@ -63,7 +63,7 @@ public class MediaRepository {
         }
     }
 
-    public Media updateMedia(Media media){
+    public Media update(Media media){
         String sql = "UPDATE Media SET title = ?, description = ?, media_type = ?, release_year = ?, age_restriction = ? WHERE id = ?";
         try(Connection conn = DatabaseConnection.getConnection()){
             PreparedStatement stmt = conn.prepareStatement(sql);
@@ -83,7 +83,7 @@ public class MediaRepository {
         }
     }
 
-    public void deleteMedia(int mediaId){
+    public void delete(int mediaId){
         String sql = "DELETE FROM media where id = ? ";
         try(Connection conn = DatabaseConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){

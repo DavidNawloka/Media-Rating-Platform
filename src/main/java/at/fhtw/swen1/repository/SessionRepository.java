@@ -6,7 +6,7 @@ import at.fhtw.swen1.util.DatabaseConnection;
 import java.sql.*;
 
 public class SessionRepository {
-    public void createSession(Session session) {
+    public void save(Session session) {
         String sql = "INSERT INTO sessions (token,user_id,expires_at) VALUES (?, ?, ?) ";
         try(Connection conn = DatabaseConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
@@ -23,7 +23,7 @@ public class SessionRepository {
 
     }
 
-    public void deleteSession(String token) {
+    public void delete(String token) {
         String sql = "DELETE FROM sessions where token = ? ";
         try(Connection conn = DatabaseConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){

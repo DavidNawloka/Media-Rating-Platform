@@ -33,17 +33,17 @@ public class MediaService {
         }
 
         Media media = new Media(title, description, mediaType, releaseYear, ageRestriction, genreIds, creatorId);
-        Media createdMedia = mediaRepository.createMedia(media);
+        Media createdMedia = mediaRepository.save(media);
 
         for(int genreId : genreIds){
-            mediaGenreRepository.addMediaGenre(createdMedia.getId(), genreId);
+            mediaGenreRepository.save(createdMedia.getId(), genreId);
         }
 
         return createdMedia;
     }
 
     public Media getMedia(int mediaId, int loggedInUserId) throws MediaNotExistsException{
-        Media media = mediaRepository.findyById(mediaId);
+        Media media = mediaRepository.findById(mediaId);
         if(media == null || media.getCreatorId() != loggedInUserId ){
             throw new MediaNotExistsException("Media with ID: " + mediaId + " does not exist.");
         }
@@ -75,7 +75,7 @@ public class MediaService {
             boolean shouldRemove = java.util.Arrays.stream(genreIds)
                     .noneMatch(id -> id == existingId);
             if(shouldRemove){
-                mediaGenreRepository.removeMediaGenre(existingMedia.getId(), existingId);
+                mediaGenreRepository.delete(existingMedia.getId(), existingId);
             }
         }
 
@@ -84,21 +84,21 @@ public class MediaService {
             boolean shouldAdd = java.util.Arrays.stream(existingGenreIds)
                     .noneMatch(id -> id == newId);
             if(shouldAdd){
-                mediaGenreRepository.addMediaGenre(existingMedia.getId(), newId);
+                mediaGenreRepository.save(existingMedia.getId(), newId);
             }
         }
 
         Media media = new Media(mediaId, title, description, mediaType, releaseYear, ageRestriction, genreIds, creatorId);
 
-        return mediaRepository.updateMedia(media);
+        return mediaRepository.update(media);
     }
 
     public void deleteMedia(int mediaId, int loggedInUserId) throws MediaNotExistsException{
-        Media media = mediaRepository.findyById(mediaId);
+        Media media = mediaRepository.findById(mediaId);
         if(media == null || media.getCreatorId() != loggedInUserId ){
             throw new MediaNotExistsException("Media with ID: " + mediaId + " does not exist.");
         }
 
-        mediaRepository.deleteMedia(mediaId);
+        mediaRepository.delete(mediaId);
     }
 }

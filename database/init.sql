@@ -6,6 +6,9 @@ CREATE TABLE IF NOT EXISTS genres (
                                       name VARCHAR(50) NOT NULL UNIQUE
 );
 
+INSERT INTO genres (name) VALUES ('Action'), ('Adventure'), ('Comedy'), ('Drama'), ('Fantasy'), ('Horror'), ('Mystery'), ('Romance'), ('Sci-Fi'), ('Thriller'), ('War'), ('Western');
+
+
 -- Create users table
 CREATE TABLE IF NOT EXISTS users (
                                      id SERIAL PRIMARY KEY,

@@ -72,7 +72,7 @@ public class AuthService {
             return -1;
         }
         if(session.getExpiresAt().before(new Timestamp(System.currentTimeMillis()))){
-            sessionRepository.deleteSession(token);
+            sessionRepository.delete(token);
             return -1;
         }
 
@@ -85,7 +85,7 @@ public class AuthService {
 
         Session newSession = new Session(token, userId, expirationDate);
 
-        sessionRepository.createSession(newSession);
+        sessionRepository.save(newSession);
         return newSession;
     }
 
