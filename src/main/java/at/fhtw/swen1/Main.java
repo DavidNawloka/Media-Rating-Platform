@@ -1,9 +1,6 @@
 package at.fhtw.swen1;
 
-import at.fhtw.swen1.controller.Controller;
-import at.fhtw.swen1.controller.AuthController;
-import at.fhtw.swen1.controller.MediaController;
-import at.fhtw.swen1.controller.UserController;
+import at.fhtw.swen1.controller.*;
 import at.fhtw.swen1.repository.*;
 import at.fhtw.swen1.service.AuthService;
 import at.fhtw.swen1.service.MediaService;
@@ -27,20 +24,22 @@ public class Main {
             MediaRepository mediaRepository = new MediaRepository();
             MediaGenreRepository mediaGenreRepository = new MediaGenreRepository();
             RatingRepository ratingRepository = new RatingRepository();
+            LikeRepository likeRepository = new LikeRepository();
 
             // Initialize services
             UserService userService = new UserService(userRepository, genreRepository);
             AuthService authService = new AuthService(userRepository, sessionRepository);
             MediaService mediaService = new MediaService(mediaRepository,genreRepository,mediaGenreRepository);
-            RatingService ratingService = new RatingService(ratingRepository,mediaRepository);
+            RatingService ratingService = new RatingService(ratingRepository,mediaRepository,likeRepository);
 
             // Initialize controllers
             Controller authController = new AuthController(authService);
             Controller userController = new UserController(userService, authService);
             Controller mediaController = new MediaController(authService,mediaService,ratingService);
+            Controller ratingController = new RatingController(authService, ratingService);
 
             serverConfig = new ServerConfig(8080);
-            serverConfig.registerRoutes(authController, userController, mediaController);
+            serverConfig.registerRoutes(authController, userController, mediaController,ratingController);
             serverConfig.start();
 
             registerShutdownHandlers();

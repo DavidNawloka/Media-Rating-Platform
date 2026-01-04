@@ -19,7 +19,8 @@ public class ServerConfig {
 
     public void registerRoutes(Controller authController,
                                Controller userController,
-                               Controller mediaController) {
+                               Controller mediaController,
+                               Controller ratingController) {
 
         server.createContext("/api/users/register", authController);
         server.createContext("/api/users/login", authController);
@@ -27,6 +28,8 @@ public class ServerConfig {
         server.createContext("/api/users", userController);
 
         server.createContext("/api/media", mediaController);
+
+        server.createContext("/api/ratings",ratingController);
 
     }
 

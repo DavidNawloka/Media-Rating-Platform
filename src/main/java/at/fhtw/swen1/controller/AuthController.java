@@ -4,7 +4,7 @@ import at.fhtw.swen1.dto.LoginRequest;
 import at.fhtw.swen1.dto.AuthResponse;
 import at.fhtw.swen1.dto.RegisterRequest;
 import at.fhtw.swen1.exception.CredentialsException;
-import at.fhtw.swen1.exception.UserAlreadyExistsException;
+import at.fhtw.swen1.exception.AlreadyExistsException;
 import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.Session;
 import at.fhtw.swen1.service.AuthService;
@@ -74,7 +74,7 @@ public class AuthController extends Controller {
             sendResponse(exchange,201, responseJson);
         }catch(ValidationException e){
             handleError("Validation error", e.getMessage(), 400, exchange);
-        }catch(UserAlreadyExistsException e){
+        }catch(AlreadyExistsException e){
             handleError("User exists error", e.getMessage(), 409, exchange);
         }catch(Exception e){
             System.err.println("Unexpected error: " + e.getMessage());
