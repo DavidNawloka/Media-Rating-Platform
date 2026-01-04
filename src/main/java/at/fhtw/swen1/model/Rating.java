@@ -14,6 +14,13 @@ public class Rating {
     private boolean commentConfirmed;
 
     public Rating(){}
+    public Rating(int mediaId, int userId, int stars, String comment) {
+        this.mediaId = mediaId;
+        this.userId = userId;
+        this.stars = stars;
+        this.comment = comment;
+        this.commentConfirmed = false;
+    }
     public Rating(int mediaId, int userId, int stars, String comment, boolean commentConfirmed) {
         this.mediaId = mediaId;
         this.userId = userId;

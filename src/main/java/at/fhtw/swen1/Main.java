@@ -7,6 +7,7 @@ import at.fhtw.swen1.controller.UserController;
 import at.fhtw.swen1.repository.*;
 import at.fhtw.swen1.service.AuthService;
 import at.fhtw.swen1.service.MediaService;
+import at.fhtw.swen1.service.RatingService;
 import at.fhtw.swen1.service.UserService;
 import at.fhtw.swen1.util.ServerConfig;
 import com.sun.net.httpserver.HttpServer;
@@ -25,16 +26,18 @@ public class Main {
             GenreRepository genreRepository = new GenreRepository();
             MediaRepository mediaRepository = new MediaRepository();
             MediaGenreRepository mediaGenreRepository = new MediaGenreRepository();
+            RatingRepository ratingRepository = new RatingRepository();
 
             // Initialize services
             UserService userService = new UserService(userRepository, genreRepository);
             AuthService authService = new AuthService(userRepository, sessionRepository);
             MediaService mediaService = new MediaService(mediaRepository,genreRepository,mediaGenreRepository);
+            RatingService ratingService = new RatingService(ratingRepository,mediaRepository);
 
             // Initialize controllers
             Controller authController = new AuthController(authService);
             Controller userController = new UserController(userService, authService);
-            Controller mediaController = new MediaController(authService,mediaService);
+            Controller mediaController = new MediaController(authService,mediaService,ratingService);
 
             serverConfig = new ServerConfig(8080);
             serverConfig.registerRoutes(authController, userController, mediaController);

@@ -1,12 +1,14 @@
 package at.fhtw.swen1.controller;
 
 import at.fhtw.swen1.dto.MediaRequest;
+import at.fhtw.swen1.dto.RatingRequest;
 import at.fhtw.swen1.exception.GenreNotExistsException;
 import at.fhtw.swen1.exception.MediaNotExistsException;
 import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.Media;
 import at.fhtw.swen1.service.AuthService;
 import at.fhtw.swen1.service.MediaService;
+import at.fhtw.swen1.service.RatingService;
 import at.fhtw.swen1.util.JsonUtil;
 import com.sun.net.httpserver.HttpExchange;
 
@@ -16,10 +18,12 @@ import static java.lang.Integer.parseInt;
 
 public class MediaController extends Controller {
     final MediaService mediaService;
+    final RatingService ratingService;
 
-    public MediaController(AuthService authService, MediaService mediaService) {
+    public MediaController(AuthService authService, MediaService mediaService, RatingService ratingService) {
         super(authService);
         this.mediaService = mediaService;
+        this.ratingService = ratingService;
     }
 
     @Override
@@ -42,7 +46,12 @@ public class MediaController extends Controller {
                 handleDeleteMedia(exchange, mediaId);
             }
         }
-        if(path.equals("/api/media")){
+        else if (path.matches("/api/media/\\d+/rate") && method.equals("POST")){
+            String[] pathParts = path.split("/");
+            int mediaId = parseInt(pathParts[3]);
+            handleRateMedia(exchange, mediaId);
+        }
+        else if(path.equals("/api/media")){
 
             if(method.equals("POST")){
                 handleCreateMedia(exchange);
@@ -56,6 +65,7 @@ public class MediaController extends Controller {
     private void handleCreateMedia(HttpExchange exchange) throws IOException {
         try{
             int loggedInUserId = getLoggedInUserId(exchange);
+            if(loggedInUserId == -1) return;
 
             MediaRequest mediaInputRequest = getDTO(exchange, MediaRequest.class);
 
@@ -89,6 +99,7 @@ public class MediaController extends Controller {
     private void handleGetMedia(HttpExchange exchange, int mediaId) throws IOException {
         try{
             int loggedInUserId = getLoggedInUserId(exchange);
+            if(loggedInUserId == -1) return;
 
             Media media = mediaService.getMedia(mediaId, loggedInUserId);
 
@@ -105,9 +116,29 @@ public class MediaController extends Controller {
         }
     }
 
+    private void handleRateMedia(HttpExchange exchange, int mediaId) throws IOException{
+        try{
+            int loggedInUserId = getLoggedInUserId(exchange);
+            if(loggedInUserId == -1) return;
+
+            RatingRequest ratingRequest = getDTO(exchange, RatingRequest.class);
+
+            ratingService.createRating(mediaId,loggedInUserId,ratingRequest.getStars(),ratingRequest.getComment());
+            sendResponse(exchange,201);
+
+        }catch(ValidationException e){
+            handleError("Rating entry data incorrect", e.getMessage(), 409, exchange);
+        }
+        catch(Exception e){
+            System.err.println("Unexpected error: " + e.getMessage());
+            handleError("Internal error", "An unexpected error occurred", 500, exchange);
+        }
+    }
+
     private void handleUpdateMedia(HttpExchange exchange, int mediaId) throws IOException {
         try{
             int loggedInUserId = getLoggedInUserId(exchange);
+            if(loggedInUserId == -1) return;
 
             MediaRequest mediaInputRequest = getDTO(exchange, MediaRequest.class);
 
@@ -142,6 +173,7 @@ public class MediaController extends Controller {
     private void handleDeleteMedia(HttpExchange exchange, int mediaId) throws IOException{
         try{
             int loggedInUserId = getLoggedInUserId(exchange);
+            if(loggedInUserId == -1) return;
 
             mediaService.deleteMedia(mediaId, loggedInUserId);
 

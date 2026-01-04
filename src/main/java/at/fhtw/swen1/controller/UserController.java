@@ -45,6 +45,7 @@ public class UserController extends Controller{
     private void handleGetProfile(HttpExchange exchange, int requestUserId) throws IOException{
         try{
             int loggedInUserId = getLoggedInUserId(exchange);
+            if(loggedInUserId == -1) return;
 
             if(loggedInUserId != requestUserId){
                 handleError("Unauthorized", "User cannot get other user", 401, exchange);
@@ -68,6 +69,8 @@ public class UserController extends Controller{
     private void handleUpdateProfile(HttpExchange exchange, int requestUserId) throws IOException{
         try{
             int userId = getLoggedInUserId(exchange);
+            if(userId == -1) return;
+
             if(userId != requestUserId){
                 handleError("Unauthorized", "User cannot modify other user", 401, exchange);
             }
