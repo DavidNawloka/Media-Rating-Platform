@@ -6,6 +6,7 @@ import at.fhtw.swen1.exception.AlreadyExistsException;
 import at.fhtw.swen1.exception.NotExistsException;
 import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.Media;
+import at.fhtw.swen1.model.Rating;
 import at.fhtw.swen1.service.AuthService;
 import at.fhtw.swen1.service.FavoriteService;
 import at.fhtw.swen1.service.MediaService;
@@ -179,8 +180,8 @@ public class MediaController extends Controller {
 
             RatingRequest ratingRequest = getDTO(exchange, RatingRequest.class);
 
-            ratingService.createRating(mediaId,loggedInUserId,ratingRequest.getStars(),ratingRequest.getComment());
-            sendResponse(exchange,201);
+            Rating rating = ratingService.createRating(mediaId,loggedInUserId,ratingRequest.getStars(),ratingRequest.getComment());
+            sendResponse(exchange,201, JsonUtil.toJson(rating));
 
         }catch(ValidationException e){
             handleError("Rating entry data incorrect", e.getMessage(), 409, exchange);

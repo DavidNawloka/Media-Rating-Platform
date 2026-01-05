@@ -141,6 +141,7 @@ public class UserController extends Controller{
 
             if(userId != requestUserId){
                 handleError("Unauthorized", "User cannot modify other user", 401, exchange);
+                return;
             }
 
             ProfileUpdateRequest profileUpdateRequest = getDTO(exchange, ProfileUpdateRequest.class);

@@ -3,7 +3,7 @@ package at.fhtw.swen1.enums;
 public enum MediaType {
     MOVIE("movie"),
     SERIES("series"),
-    BOOK("book");
+    GAME("game");
 
     public final String label;
 

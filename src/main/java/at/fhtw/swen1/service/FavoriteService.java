@@ -17,7 +17,7 @@ public class FavoriteService {
 
     public void saveFavorite(int userId, int mediaId) throws AlreadyExistsException, NotExistsException {
         if(favoriteRepository.exists(userId, mediaId)){
-            throw new AlreadyExistsException("Rating does already exists");
+            throw new AlreadyExistsException("Media already favorited");
         }
 
         if(mediaRepository.findById(mediaId) == null){
@@ -29,7 +29,7 @@ public class FavoriteService {
 
     public void deleteFavorite(int userId, int mediaId) throws NotExistsException {
         if(!favoriteRepository.exists(userId, mediaId)){
-            throw new NotExistsException("Rating does not exist");
+            throw new NotExistsException("Media not favorited yet");
         }
 
         favoriteRepository.delete(userId, mediaId);

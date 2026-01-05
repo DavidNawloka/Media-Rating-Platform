@@ -25,10 +25,14 @@ public class UserService {
             throw new NotExistsException("Genre ID: " + favoriteGenreId + " does not exist.");
         }
 
-        if(userRepository.findByEmail(email) != null || userRepository.findByUsername(username) != null){
-            throw new AlreadyExistsException("Username or email already exists");
-        }
 
+        User existingUserEmail = userRepository.findByEmail(email);
+        User existingUserUsername = userRepository.findByUsername(username);
+
+        if((existingUserEmail != null && existingUserEmail.getId() != userId) || (existingUserUsername != null && existingUserUsername.getId() != userId)){
+            throw new AlreadyExistsException("Username or email already exists");
+
+        }
 
         return userRepository.update(username, email, favoriteGenreId, userId);
     }
