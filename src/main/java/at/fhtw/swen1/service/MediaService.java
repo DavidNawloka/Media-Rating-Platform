@@ -96,7 +96,7 @@ public class MediaService {
             }
         }
 
-        Media media = new Media(mediaId, title, description, mediaType, releaseYear, ageRestriction, genreIds, creatorId);
+        Media media = new Media(mediaId, title, description, mediaType, releaseYear, ageRestriction, genreIds, creatorId,existingMedia.getAverageScore());
 
         return mediaRepository.update(media);
     }
@@ -108,5 +108,15 @@ public class MediaService {
         }
 
         mediaRepository.delete(mediaId);
+    }
+
+    public ArrayList<Media> getMediaList(String title, String genreId, String mediaType, String releaseYear, String ageRestriction, String rating, String sortBy) {
+        ArrayList<Media> mediaList = mediaRepository.findAllWithFilters(title,genreId, mediaType, releaseYear, ageRestriction, rating, sortBy);
+
+        for(Media media: mediaList){
+            int[] genreIds = mediaGenreRepository.findGenreIdsByMediaId(media.getId());
+            media.setGenreIds(genreIds);
+        }
+        return mediaList;
     }
 }

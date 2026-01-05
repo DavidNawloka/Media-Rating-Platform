@@ -15,6 +15,7 @@ public class Media {
     private int ageRestriction;
     private int[] genreIds;
     private int creatorId;
+    private float averageScore;
 
     public Media(){}
     public Media(String title, String description, MediaType mediaType, int releaseYear, int ageRestriction, int[] genreIds, int creatorId) {
@@ -27,7 +28,7 @@ public class Media {
         this.creatorId = creatorId;
     }
 
-    public Media(int mediaId,String title, String description, MediaType mediaType, int releaseYear, int ageRestriction, int[] genreIds, int creatorId) {
+    public Media(int mediaId,String title, String description, MediaType mediaType, int releaseYear, int ageRestriction, int[] genreIds, int creatorId, float averageScore) {
 
         this.id = mediaId;
         this.title = title;
@@ -37,5 +38,6 @@ public class Media {
         this.ageRestriction = ageRestriction;
         this.genreIds = genreIds;
         this.creatorId = creatorId;
+        this.averageScore = Math.round(averageScore*100)/100f;
     }
 }
