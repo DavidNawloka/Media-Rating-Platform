@@ -9,6 +9,8 @@ import at.fhtw.swen1.repository.MediaRepository;
 import at.fhtw.swen1.repository.RatingRepository;
 import at.fhtw.swen1.service.validation.ValidationService;
 
+import java.util.ArrayList;
+
 public class RatingService {
 
     private final RatingRepository ratingRepository;
@@ -21,6 +23,17 @@ public class RatingService {
         this.likeRepository = likeRepository;
     }
 
+
+    public ArrayList<Rating> getUserRatings(int userId) {
+
+        ArrayList<Rating> userRatings = ratingRepository.findByUserId(userId);
+
+        for (Rating userRating : userRatings) {
+            if(!userRating.isCommentConfirmed()) userRating.setComment(null);
+        }
+
+        return userRatings;
+    }
 
     public Rating createRating(int mediaId, int userId, int stars, String comment) throws ValidationException {
         if(mediaId < 0 || userId < 0 || stars < 1 || stars > 5){

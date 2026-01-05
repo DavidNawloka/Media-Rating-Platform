@@ -4,20 +4,25 @@ import at.fhtw.swen1.enums.MediaType;
 import at.fhtw.swen1.exception.NotExistsException;
 import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.Media;
+import at.fhtw.swen1.repository.FavoriteRepository;
 import at.fhtw.swen1.repository.GenreRepository;
 import at.fhtw.swen1.repository.MediaGenreRepository;
 import at.fhtw.swen1.repository.MediaRepository;
 import at.fhtw.swen1.service.validation.ValidationService;
 
+import java.util.ArrayList;
+
 public class MediaService {
     private final MediaRepository mediaRepository;
     private final GenreRepository genreRepository;
     private final MediaGenreRepository mediaGenreRepository;
+    private final FavoriteRepository favoriteRepository;
 
-    public MediaService(MediaRepository mediaRepository, GenreRepository genreRepository, MediaGenreRepository mediaGenreRepository) {
+    public MediaService(MediaRepository mediaRepository, GenreRepository genreRepository, MediaGenreRepository mediaGenreRepository, FavoriteRepository favoriteRepository) {
         this.mediaRepository = mediaRepository;
         this.genreRepository = genreRepository;
         this.mediaGenreRepository = mediaGenreRepository;
+        this.favoriteRepository = favoriteRepository;
     }
 
     public Media createMedia(String title, String description, MediaType mediaType, int releaseYear, int ageRestriction, int[] genreIds, int creatorId) throws NotExistsException, ValidationException {
@@ -41,9 +46,13 @@ public class MediaService {
         return createdMedia;
     }
 
-    public Media getMedia(int mediaId, int loggedInUserId) throws NotExistsException{
+    public ArrayList<Media> getFavoriteMedias(int userId){
+        return favoriteRepository.findByUserId(userId);
+    }
+
+    public Media getMedia(int mediaId, int loggedInUserId, boolean onlyOwner) throws NotExistsException{
         Media media = mediaRepository.findById(mediaId);
-        if(media == null || media.getCreatorId() != loggedInUserId ){
+        if(media == null || (onlyOwner && media.getCreatorId() != loggedInUserId) ){
             throw new NotExistsException("Media with ID: " + mediaId + " does not exist.");
         }
 
@@ -63,7 +72,7 @@ public class MediaService {
             }
         }
 
-        Media existingMedia = getMedia(mediaId,  loggedInUserId);
+        Media existingMedia = getMedia(mediaId,  loggedInUserId, true);
 
 
 

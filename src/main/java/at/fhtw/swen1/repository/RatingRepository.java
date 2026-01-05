@@ -7,8 +7,38 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class RatingRepository {
+
+    public ArrayList<Rating> findByUserId(int userId){
+        String sql = "SELECT * FROM ratings WHERE user_id = ?";
+
+        try( Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)){
+
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            ArrayList<Rating> ratings = new ArrayList<Rating>();
+
+            while(rs.next()){
+                Rating rating = new Rating();
+                rating.setId(rs.getInt("id"));
+                rating.setMediaId(rs.getInt("media_id"));
+                rating.setUserId(rs.getInt("user_id"));
+                rating.setStars(rs.getInt("stars"));
+                rating.setComment(rs.getString("comment"));
+                rating.setCommentConfirmed(rs.getBoolean("comment_confirmed"));
+                ratings.add(rating);
+            }
+            return ratings;
+
+        }catch (SQLException e){
+            throw new RuntimeException("Database error while finding rating entry "+e);
+        }
+    }
+
     public Rating findById(int ratingId) {
         String sql = "SELECT * FROM ratings WHERE id = ?";
 

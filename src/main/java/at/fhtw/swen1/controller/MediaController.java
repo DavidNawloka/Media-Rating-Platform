@@ -2,10 +2,12 @@ package at.fhtw.swen1.controller;
 
 import at.fhtw.swen1.dto.MediaRequest;
 import at.fhtw.swen1.dto.RatingRequest;
+import at.fhtw.swen1.exception.AlreadyExistsException;
 import at.fhtw.swen1.exception.NotExistsException;
 import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.Media;
 import at.fhtw.swen1.service.AuthService;
+import at.fhtw.swen1.service.FavoriteService;
 import at.fhtw.swen1.service.MediaService;
 import at.fhtw.swen1.service.RatingService;
 import at.fhtw.swen1.util.JsonUtil;
@@ -18,11 +20,13 @@ import static java.lang.Integer.parseInt;
 public class MediaController extends Controller {
     final MediaService mediaService;
     final RatingService ratingService;
+    final FavoriteService favoriteService;
 
-    public MediaController(AuthService authService, MediaService mediaService, RatingService ratingService) {
+    public MediaController(AuthService authService, MediaService mediaService, RatingService ratingService, FavoriteService favoriteService) {
         super(authService);
         this.mediaService = mediaService;
         this.ratingService = ratingService;
+        this.favoriteService = favoriteService;
     }
 
     @Override
@@ -57,9 +61,62 @@ public class MediaController extends Controller {
             }
 
         }
+        else if(path.matches("/api/media/\\d+/favorite")){
+            String[] pathParts = path.split("/");
+            int mediaId = parseInt(pathParts[3]);
+
+            if(method.equals("POST")){
+                handleFavoriteMedia(exchange, mediaId);
+            }
+
+            if(method.equals("DELETE")){
+                handleUnfavoriteMedia(exchange, mediaId);
+            }
+        }
 
         handleError("Not found", "Incorrect path", 404, exchange);
     }
+
+    private void handleFavoriteMedia(HttpExchange exchange, int mediaId) throws IOException {
+        try{
+
+            int loggedInUserId = getLoggedInUserId(exchange);
+            if(loggedInUserId == -1) return;
+
+            favoriteService.saveFavorite(loggedInUserId,mediaId);
+            sendResponse(exchange,200);
+
+
+        }catch(AlreadyExistsException e){
+            handleError("Media already favorite", e.getMessage(), 409, exchange);
+        }catch(NotExistsException e){
+            handleError("Media does not exist", e.getMessage(), 404, exchange);
+        }
+        catch(Exception e){
+            System.err.println("Unexpected error: " + e.getMessage());
+            handleError("Internal error", "An unexpected error occurred", 500, exchange);
+        }
+    }
+
+
+    private void handleUnfavoriteMedia(HttpExchange exchange, int mediaId) throws IOException {
+        try{
+            int loggedInUserId = getLoggedInUserId(exchange);
+            if(loggedInUserId == -1) return;
+
+            favoriteService.deleteFavorite(loggedInUserId,mediaId);
+            sendResponse(exchange,204);
+
+
+        }catch(NotExistsException e){
+            handleError("Media has not been favorite yet", e.getMessage(), 409, exchange);
+        }
+        catch(Exception e){
+            System.err.println("Unexpected error: " + e.getMessage());
+            handleError("Internal error", "An unexpected error occurred", 500, exchange);
+        }
+    }
+
 
     private void handleCreateMedia(HttpExchange exchange) throws IOException {
         try{
@@ -100,7 +157,7 @@ public class MediaController extends Controller {
             int loggedInUserId = getLoggedInUserId(exchange);
             if(loggedInUserId == -1) return;
 
-            Media media = mediaService.getMedia(mediaId, loggedInUserId);
+            Media media = mediaService.getMedia(mediaId, loggedInUserId, false);
 
 
             sendResponse(exchange,200, JsonUtil.toJson(media));
