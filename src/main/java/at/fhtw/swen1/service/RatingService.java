@@ -7,7 +7,6 @@ import at.fhtw.swen1.model.Rating;
 import at.fhtw.swen1.repository.LikeRepository;
 import at.fhtw.swen1.repository.MediaRepository;
 import at.fhtw.swen1.repository.RatingRepository;
-import at.fhtw.swen1.service.validation.ValidationService;
 
 import java.util.ArrayList;
 
@@ -45,9 +44,8 @@ public class RatingService {
         }
 
         Rating rating = new Rating(mediaId, userId, stars, comment);
-        Rating createdRating = ratingRepository.save(rating);
 
-        return createdRating;
+        return ratingRepository.save(rating);
     }
 
     public void deleteRating(int ratingId, int loggedInUserId) throws NotExistsException {

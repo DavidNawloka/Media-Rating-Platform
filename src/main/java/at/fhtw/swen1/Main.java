@@ -4,11 +4,7 @@ import at.fhtw.swen1.controller.*;
 import at.fhtw.swen1.repository.*;
 import at.fhtw.swen1.service.*;
 import at.fhtw.swen1.util.ServerConfig;
-import com.sun.net.httpserver.HttpServer;
 import sun.misc.Signal;
-import sun.misc.SignalHandler;
-
-import java.net.InetSocketAddress;
 
 public class Main {
     private static ServerConfig serverConfig;
@@ -50,22 +46,16 @@ public class Main {
 
     private static void registerShutdownHandlers(){
         // Handle Ctrl+C (SIGINT)
-        Signal.handle(new Signal("INT"), new SignalHandler() {
-            @Override
-            public void handle(Signal signal) {
-                System.out.println("\nReceived interrupt signal. Shutting down server...");
-                shutdown();
-                System.exit(0);
-            }
+        Signal.handle(new Signal("INT"), signal -> {
+            System.out.println("\nReceived interrupt signal. Shutting down server...");
+            shutdown();
+            System.exit(0);
         });
         // Handle SIGTERM
-        Signal.handle(new Signal("TERM"), new SignalHandler() {
-            @Override
-            public void handle(Signal signal){
-                System.out.println("\nReceived termination signal. Shutting down server...");
-                shutdown();
-                System.exit(0);
-            }
+        Signal.handle(new Signal("TERM"), signal -> {
+            System.out.println("\nReceived termination signal. Shutting down server...");
+            shutdown();
+            System.exit(0);
         });
     }
 

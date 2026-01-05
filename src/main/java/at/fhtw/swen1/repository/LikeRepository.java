@@ -19,10 +19,7 @@ public class LikeRepository {
             stmt.setInt(2, ratingId);
             ResultSet rs = stmt.executeQuery();
 
-            if(rs.next()){
-                return true;
-            }
-            return false;
+            return rs.next();
 
         }catch (SQLException e){
             throw new RuntimeException("Database error while finding like entry "+e);

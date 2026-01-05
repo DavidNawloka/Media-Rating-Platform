@@ -20,7 +20,7 @@ public class RatingRepository {
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
 
-            ArrayList<Rating> ratings = new ArrayList<Rating>();
+            ArrayList<Rating> ratings = new ArrayList<>();
 
             while(rs.next()){
                 Rating rating = new Rating();

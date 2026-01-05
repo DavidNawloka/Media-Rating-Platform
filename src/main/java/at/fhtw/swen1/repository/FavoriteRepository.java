@@ -20,7 +20,7 @@ public class FavoriteRepository {
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
 
-            ArrayList<Media> favoriteMedias = new ArrayList<Media>();
+            ArrayList<Media> favoriteMedias = new ArrayList<>();
 
             while(rs.next()){
                 Media media = new Media();
@@ -51,10 +51,7 @@ public class FavoriteRepository {
             stmt.setInt(2, mediaId);
             ResultSet rs = stmt.executeQuery();
 
-            if(rs.next()){
-                return true;
-            }
-            return false;
+            return rs.next();
 
         }catch (SQLException e){
             throw new RuntimeException("Database error while finding like entry "+e);
