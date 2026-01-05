@@ -1,7 +1,7 @@
 package at.fhtw.swen1.service;
 
-import at.fhtw.swen1.exception.GenreNotExistsException;
-import at.fhtw.swen1.exception.UserAlreadyExistsException;
+import at.fhtw.swen1.exception.NotExistsException;
+import at.fhtw.swen1.exception.AlreadyExistsException;
 import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.repository.GenreRepository;
 import at.fhtw.swen1.repository.UserRepository;
@@ -19,16 +19,20 @@ public class UserService {
         return userRepository.findById(userId);
     }
 
-    public User updateUserProfile(String username, String email, Integer favoriteGenreId, int userId) throws GenreNotExistsException, UserAlreadyExistsException {
+    public User updateUserProfile(String username, String email, Integer favoriteGenreId, int userId) throws NotExistsException, AlreadyExistsException {
 
         if(favoriteGenreId != null && genreRepository.getGenre(favoriteGenreId) == null){
-            throw new GenreNotExistsException("Genre ID: " + favoriteGenreId + " does not exist.");
+            throw new NotExistsException("Genre ID: " + favoriteGenreId + " does not exist.");
         }
 
-        if(userRepository.findByEmail(email) != null || userRepository.findByUsername(username) != null){
-            throw new UserAlreadyExistsException("Username or email already exists");
-        }
 
+        User existingUserEmail = userRepository.findByEmail(email);
+        User existingUserUsername = userRepository.findByUsername(username);
+
+        if((existingUserEmail != null && existingUserEmail.getId() != userId) || (existingUserUsername != null && existingUserUsername.getId() != userId)){
+            throw new AlreadyExistsException("Username or email already exists");
+
+        }
 
         return userRepository.update(username, email, favoriteGenreId, userId);
     }
