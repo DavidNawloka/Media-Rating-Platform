@@ -6,6 +6,7 @@ import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.Session;
 import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.repository.SessionRepository;
+import at.fhtw.swen1.repository.UnitOfWork;
 import at.fhtw.swen1.repository.UserRepository;
 import at.fhtw.swen1.util.HashUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,11 +40,11 @@ class AuthServiceTest {
         when(userRepository.findByEmail("new@email.com")).thenReturn(null);
         User savedUser = new User("newuser","new@email.com", "hash");
         savedUser.setId(1);
-        when(userRepository.save(any(User.class))).thenReturn(savedUser);
+        when(userRepository.save(any(User.class),any(UnitOfWork.class))).thenReturn(savedUser);
 
         Session result = authService.register("newuser","new@email.com","password123");
         assertNotNull(result);
-        verify(sessionRepository).save(any(Session.class));
+        verify(sessionRepository).save(any(Session.class),any(UnitOfWork.class));
     }
 
     @Test

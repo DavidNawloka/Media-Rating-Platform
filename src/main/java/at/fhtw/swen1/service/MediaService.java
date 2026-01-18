@@ -4,10 +4,7 @@ import at.fhtw.swen1.enums.MediaType;
 import at.fhtw.swen1.exception.NotExistsException;
 import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.Media;
-import at.fhtw.swen1.repository.FavoriteRepository;
-import at.fhtw.swen1.repository.GenreRepository;
-import at.fhtw.swen1.repository.MediaGenreRepository;
-import at.fhtw.swen1.repository.MediaRepository;
+import at.fhtw.swen1.repository.*;
 import at.fhtw.swen1.service.validation.ValidationService;
 
 import java.util.ArrayList;
@@ -37,13 +34,17 @@ public class MediaService {
         }
 
         Media media = new Media(title, description, mediaType, releaseYear, ageRestriction, genreIds, creatorId);
-        Media createdMedia = mediaRepository.save(media);
+        try(UnitOfWork uow = new UnitOfWork()){
+            Media createdMedia = mediaRepository.save(media,uow);
 
-        for(int genreId : genreIds){
-            mediaGenreRepository.save(createdMedia.getId(), genreId);
+            for(int genreId : genreIds){
+                mediaGenreRepository.save(createdMedia.getId(), genreId,uow);
+            }
+
+            uow.commitTransaction();
+            return createdMedia;
         }
 
-        return createdMedia;
     }
 
     public ArrayList<Media> getFavoriteMedias(int userId){
@@ -78,27 +79,32 @@ public class MediaService {
 
         int[] existingGenreIds = existingMedia.getGenreIds();
 
-        // Remove genres that are no longer in the new list
-        for(int existingId : existingGenreIds){
-            boolean shouldRemove = java.util.Arrays.stream(genreIds)
-                    .noneMatch(id -> id == existingId);
-            if(shouldRemove){
-                mediaGenreRepository.delete(existingMedia.getId(), existingId);
+        try(UnitOfWork uow = new UnitOfWork()){
+            // Remove genres that are no longer in the new list
+            for(int existingId : existingGenreIds){
+                boolean shouldRemove = java.util.Arrays.stream(genreIds)
+                        .noneMatch(id -> id == existingId);
+                if(shouldRemove){
+                    mediaGenreRepository.delete(existingMedia.getId(), existingId, uow);
+                }
             }
+
+            // Add genres that do not exist in the list yet
+            for(int newId : genreIds){
+                boolean shouldAdd = java.util.Arrays.stream(existingGenreIds)
+                        .noneMatch(id -> id == newId);
+                if(shouldAdd){
+                    mediaGenreRepository.save(existingMedia.getId(), newId, uow);
+                }
+            }
+
+            Media media = new Media(mediaId, title, description, mediaType, releaseYear, ageRestriction, genreIds, creatorId,existingMedia.getAverageScore());
+
+            Media newMedia = mediaRepository.update(media, uow);
+            uow.commitTransaction();
+            return newMedia;
         }
 
-        // Add genres that do not exist in the list yet
-        for(int newId : genreIds){
-            boolean shouldAdd = java.util.Arrays.stream(existingGenreIds)
-                    .noneMatch(id -> id == newId);
-            if(shouldAdd){
-                mediaGenreRepository.save(existingMedia.getId(), newId);
-            }
-        }
-
-        Media media = new Media(mediaId, title, description, mediaType, releaseYear, ageRestriction, genreIds, creatorId,existingMedia.getAverageScore());
-
-        return mediaRepository.update(media);
     }
 
     public void deleteMedia(int mediaId, int loggedInUserId) throws NotExistsException{
@@ -106,8 +112,11 @@ public class MediaService {
         if(media == null || media.getCreatorId() != loggedInUserId ){
             throw new NotExistsException("Media with ID: " + mediaId + " does not exist.");
         }
+        try(UnitOfWork uow = new UnitOfWork()){
+            mediaRepository.delete(mediaId,uow);
+            uow.commitTransaction();
+        }
 
-        mediaRepository.delete(mediaId);
     }
 
     public ArrayList<Media> getMediaList(String title, String genreId, String mediaType, String releaseYear, String ageRestriction, String rating, String sortBy) {

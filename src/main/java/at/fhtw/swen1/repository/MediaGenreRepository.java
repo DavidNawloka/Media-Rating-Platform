@@ -1,6 +1,6 @@
 package at.fhtw.swen1.repository;
 
-import at.fhtw.swen1.util.DatabaseConnection;
+
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,7 +11,7 @@ public class MediaGenreRepository {
 
     public int[] findGenreIdsByMediaId(int mediaId){
         String sql = "SELECT genre_id FROM media_genres WHERE media_id = ?";
-        try(Connection conn = DatabaseConnection.getConnection()){
+        try(Connection conn = DatabaseManager.INSTANCE.getConnection()){
             PreparedStatement stmt = conn.prepareStatement(sql);
 
             stmt.setInt(1, mediaId);
@@ -28,11 +28,10 @@ public class MediaGenreRepository {
         }
     }
 
-    public void save(int mediaId, int genreId) {
+    public void save(int mediaId, int genreId, UnitOfWork uow) {
         String sql = "INSERT INTO media_genres (media_id, genre_id) VALUES (?, ?)";
-        try(Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)){
-
+        try{
+            PreparedStatement stmt = uow.prepareStatement(sql);
             stmt.setInt(1, mediaId);
             stmt.setInt(2, genreId);
 
@@ -44,10 +43,10 @@ public class MediaGenreRepository {
         }
     }
 
-    public void delete(int mediaId, int genreId) {
+    public void delete(int mediaId, int genreId, UnitOfWork uow) {
         String sql = "DELETE FROM media_genres WHERE media_id = ? AND genre_id = ?";
-        try(Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)){
+        try{
+            PreparedStatement stmt = uow.prepareStatement(sql);
 
             stmt.setInt(1, mediaId);
             stmt.setInt(2, genreId);

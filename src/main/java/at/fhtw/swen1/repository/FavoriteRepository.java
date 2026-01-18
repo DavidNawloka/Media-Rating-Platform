@@ -2,7 +2,6 @@ package at.fhtw.swen1.repository;
 
 import at.fhtw.swen1.enums.MediaType;
 import at.fhtw.swen1.model.Media;
-import at.fhtw.swen1.util.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,7 +13,7 @@ public class FavoriteRepository {
 
     public ArrayList<Media> findByUserId(int userId){
         String sql = "SELECT * FROM favorites INNER JOIN public.media m on favorites.media_id = m.id WHERE user_id = ?";
-        try(Connection conn = DatabaseConnection.getConnection();
+        try(Connection conn = DatabaseManager.INSTANCE.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
 
             stmt.setInt(1, userId);
@@ -44,7 +43,7 @@ public class FavoriteRepository {
     public boolean exists(int userId, int mediaId){
         String sql = "SELECT * FROM favorites WHERE user_id = ? AND media_id = ?";
 
-        try(Connection conn = DatabaseConnection.getConnection();
+        try(Connection conn = DatabaseManager.INSTANCE.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
 
             stmt.setInt(1, userId);
@@ -58,11 +57,10 @@ public class FavoriteRepository {
         }
     }
 
-    public void save(int userId, int mediaId) {
+    public void save(int userId, int mediaId, UnitOfWork uow) {
         String sql = "INSERT INTO favorites (user_id, media_id) VALUES (?, ?)";
-        try(Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)){
-
+        try{
+            PreparedStatement stmt = uow.prepareStatement(sql);
             stmt.setInt(1, userId);
             stmt.setInt(2, mediaId);
 
@@ -73,11 +71,10 @@ public class FavoriteRepository {
         }
     }
 
-    public void delete(int userId, int mediaId) {
+    public void delete(int userId, int mediaId, UnitOfWork uow) {
         String sql = "DELETE FROM favorites WHERE user_id = ? AND media_id = ?";
-        try(Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)){
-
+        try{
+            PreparedStatement stmt = uow.prepareStatement(sql);
             stmt.setInt(1, userId);
             stmt.setInt(2, mediaId);
 

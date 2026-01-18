@@ -2,7 +2,6 @@ package at.fhtw.swen1.repository;
 
 import at.fhtw.swen1.enums.MediaType;
 import at.fhtw.swen1.model.Media;
-import at.fhtw.swen1.util.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,7 +14,7 @@ public class MediaRepository {
     public Media findById(int mediaId) {
         String sql = "SELECT * FROM media WHERE id = ?";
 
-        try( Connection conn = DatabaseConnection.getConnection();
+        try( Connection conn = DatabaseManager.INSTANCE.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)){
 
             stmt.setInt(1, mediaId);
@@ -55,11 +54,10 @@ public class MediaRepository {
         }
     }
 
-    public Media save(Media media) {
+    public Media save(Media media, UnitOfWork uow) {
         String sql = "INSERT INTO media (title, description, media_type, release_year, age_restriction, creator_id) VALUES (?, ?, ?, ?, ?, ?) RETURNING id";
-        try(Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)){
-
+        try{
+            PreparedStatement stmt = uow.prepareStatement(sql);
             stmt.setString(1, media.getTitle());
             stmt.setString(2, media.getDescription());
             stmt.setString(3, media.getMediaType().label);
@@ -80,11 +78,10 @@ public class MediaRepository {
         }
     }
 
-    public Media update(Media media){
+    public Media update(Media media, UnitOfWork uow){
         String sql = "UPDATE Media SET title = ?, description = ?, media_type = ?, release_year = ?, age_restriction = ? WHERE id = ?";
-        try(Connection conn = DatabaseConnection.getConnection()){
-            PreparedStatement stmt = conn.prepareStatement(sql);
-
+        try{
+            PreparedStatement stmt = uow.prepareStatement(sql);
             stmt.setString(1, media.getTitle());
             stmt.setString(2, media.getDescription());
             stmt.setString(3, media.getMediaType().label);
@@ -100,11 +97,10 @@ public class MediaRepository {
         }
     }
 
-    public void delete(int mediaId){
+    public void delete(int mediaId, UnitOfWork uow){
         String sql = "DELETE FROM media where id = ? ";
-        try(Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)){
-
+        try{
+            PreparedStatement stmt = uow.prepareStatement(sql);
             stmt.setInt(1, mediaId);
 
             stmt.executeUpdate();
@@ -164,7 +160,7 @@ public class MediaRepository {
 
         ArrayList<Media> mediaList = new ArrayList<>();
 
-        try (Connection connection = DatabaseConnection.getConnection();
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql.toString())) {
 
             // Set parameters

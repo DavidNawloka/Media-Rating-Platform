@@ -5,6 +5,7 @@ import at.fhtw.swen1.exception.NotExistsException;
 import at.fhtw.swen1.model.Genre;
 import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.repository.GenreRepository;
+import at.fhtw.swen1.repository.UnitOfWork;
 import at.fhtw.swen1.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -68,7 +70,7 @@ class UserServiceTest {
         when(userRepository.findByEmail("new@gmail.com")).thenReturn(null);
         when(userRepository.findByUsername("newname")).thenReturn(null);
         User updated = new User("newname","new@gmail.com","hash");
-        when(userRepository.update("newname","new@gmail.com",1,1)).thenReturn(updated);
+        when(userRepository.update("newname","new@gmail.com",1,1,any(UnitOfWork.class))).thenReturn(updated);
 
         User result = userService.updateUserProfile("newname","new@gmail.com",1,1);
 
