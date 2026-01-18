@@ -4,8 +4,8 @@ import at.fhtw.swen1.exception.NotExistsException;
 import at.fhtw.swen1.exception.AlreadyExistsException;
 import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.repository.GenreRepository;
+import at.fhtw.swen1.repository.UnitOfWork;
 import at.fhtw.swen1.repository.UserRepository;
-
 import java.util.ArrayList;
 
 public class UserService {
@@ -40,7 +40,12 @@ public class UserService {
 
         }
 
-        return userRepository.update(username, email, favoriteGenreId, userId);
+        try(UnitOfWork uow = new UnitOfWork()){
+            User userUpdated = userRepository.update(username, email, favoriteGenreId, userId, uow);
+            uow.commitTransaction();
+            return userUpdated;
+        }
+
     }
 
 

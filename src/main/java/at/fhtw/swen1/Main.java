@@ -19,7 +19,7 @@ public class Main {
             RatingRepository ratingRepository = new RatingRepository();
             LikeRepository likeRepository = new LikeRepository();
             FavoriteRepository favoriteRepository = new FavoriteRepository();
-            RecommendationRepository recommendationRepository = new RecommendationRepository(mediaRepository);
+            RecommendationRepository recommendationRepository = new RecommendationRepository();
             // Initialize services
             UserService userService = new UserService(userRepository, genreRepository);
             AuthService authService = new AuthService(userRepository, sessionRepository);

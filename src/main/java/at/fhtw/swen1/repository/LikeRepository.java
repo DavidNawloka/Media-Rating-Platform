@@ -1,6 +1,5 @@
 package at.fhtw.swen1.repository;
 
-import at.fhtw.swen1.util.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,7 +11,7 @@ public class LikeRepository {
     public boolean find(int userId, int ratingId){
         String sql = "SELECT * FROM public.rating_likes WHERE user_id = ? AND rating_id = ?";
 
-        try(Connection conn = DatabaseConnection.getConnection();
+        try(Connection conn = DatabaseManager.INSTANCE.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
 
             stmt.setInt(1, userId);
@@ -26,10 +25,10 @@ public class LikeRepository {
         }
     }
 
-    public void save(int loggedInUserId, int ratingId) {
+    public void save(int loggedInUserId, int ratingId, UnitOfWork uow) {
         String sql = "INSERT INTO rating_likes (user_id, rating_id) VALUES (?, ?)";
-        try(Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)){
+        try{
+            PreparedStatement stmt = uow.prepareStatement(sql);
 
             stmt.setInt(1, loggedInUserId);
             stmt.setInt(2, ratingId);

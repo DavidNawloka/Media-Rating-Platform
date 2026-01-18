@@ -1,7 +1,6 @@
 package at.fhtw.swen1.repository;
 
 import at.fhtw.swen1.model.Rating;
-import at.fhtw.swen1.util.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,7 +13,7 @@ public class RatingRepository {
     public ArrayList<Rating> findByUserId(int userId){
         String sql = "SELECT * FROM ratings WHERE user_id = ?";
 
-        try( Connection conn = DatabaseConnection.getConnection();
+        try( Connection conn = DatabaseManager.INSTANCE.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)){
 
             stmt.setInt(1, userId);
@@ -42,7 +41,7 @@ public class RatingRepository {
     public boolean exists(int userId, int mediaId){
         String sql = "SELECT * FROM ratings WHERE user_id = ? AND media_id = ?";
 
-        try( Connection conn = DatabaseConnection.getConnection();
+        try( Connection conn = DatabaseManager.INSTANCE.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)){
 
             stmt.setInt(1, userId);
@@ -50,10 +49,7 @@ public class RatingRepository {
             ResultSet rs = stmt.executeQuery();
 
 
-            if(rs.next()){
-                return true;
-            }
-            return false;
+            return rs.next();
 
         }catch (SQLException e){
             throw new RuntimeException("Database error while finding rating entry "+e);
@@ -63,7 +59,7 @@ public class RatingRepository {
     public Rating findById(int ratingId) {
         String sql = "SELECT * FROM ratings WHERE id = ?";
 
-        try( Connection conn = DatabaseConnection.getConnection();
+        try( Connection conn = DatabaseManager.INSTANCE.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)){
 
             stmt.setInt(1, ratingId);
@@ -85,11 +81,10 @@ public class RatingRepository {
             throw new RuntimeException("Database error while finding rating entry "+e);
         }
     }
-    public Rating save(Rating rating) {
+    public Rating save(Rating rating, UnitOfWork uow) {
         String sql = "INSERT INTO ratings (media_id, user_id, stars, comment) VALUES (?, ?, ?, ?) RETURNING id";
-        try(Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)){
-
+        try{
+            PreparedStatement stmt = uow.prepareStatement(sql);
             stmt.setInt(1, rating.getMediaId());
             stmt.setInt(2, rating.getUserId());
             stmt.setInt(3, rating.getStars());
@@ -108,10 +103,10 @@ public class RatingRepository {
         }
     }
 
-    public void confirmRating(int ratingId){
-        String sql = "UPDATE ratings SET comment_confirmed = 1 WHERE id = ?";
-        try(Connection conn = DatabaseConnection.getConnection()){
-            PreparedStatement stmt = conn.prepareStatement(sql);
+    public void confirmRating(int ratingId, UnitOfWork uow){
+        String sql = "UPDATE ratings SET comment_confirmed = TRUE WHERE id = ?";
+        try{
+            PreparedStatement stmt = uow.prepareStatement(sql);
 
             stmt.setInt(1, ratingId);
 
@@ -124,10 +119,10 @@ public class RatingRepository {
 
 
 
-    public Rating update(Rating rating){
+    public Rating update(Rating rating, UnitOfWork uow){
         String sql = "UPDATE ratings SET comment = ?, stars = ? WHERE id = ?";
-        try(Connection conn = DatabaseConnection.getConnection()){
-            PreparedStatement stmt = conn.prepareStatement(sql);
+        try{
+            PreparedStatement stmt = uow.prepareStatement(sql);
 
             stmt.setString(1, rating.getComment());
             stmt.setInt(2, rating.getStars());
@@ -141,10 +136,10 @@ public class RatingRepository {
         }
     }
 
-    public void delete(int ratingId){
+    public void delete(int ratingId, UnitOfWork uow){
         String sql = "DELETE FROM ratings where id = ? ";
-        try(Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)){
+        try{
+            PreparedStatement stmt = uow.prepareStatement(sql);
 
             stmt.setInt(1, ratingId);
 

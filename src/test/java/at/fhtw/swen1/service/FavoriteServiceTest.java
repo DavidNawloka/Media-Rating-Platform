@@ -5,6 +5,7 @@ import at.fhtw.swen1.exception.NotExistsException;
 import at.fhtw.swen1.model.Media;
 import at.fhtw.swen1.repository.FavoriteRepository;
 import at.fhtw.swen1.repository.MediaRepository;
+import at.fhtw.swen1.repository.UnitOfWork;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,7 +39,7 @@ class FavoriteServiceTest {
 
         favoriteService.saveFavorite(1,1);
 
-        verify(favoriteRepository).save(1,1);
+        verify(favoriteRepository).save(1,1,any(UnitOfWork.class));
     }
 
     @Test
@@ -61,7 +63,7 @@ class FavoriteServiceTest {
 
         favoriteService.deleteFavorite(1,1);
 
-        verify(favoriteRepository).delete(1,1);
+        verify(favoriteRepository).delete(1,1,any(UnitOfWork.class));
     }
 
     @Test

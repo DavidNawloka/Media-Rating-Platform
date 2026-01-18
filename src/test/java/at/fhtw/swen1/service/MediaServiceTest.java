@@ -5,10 +5,7 @@ import at.fhtw.swen1.exception.NotExistsException;
 import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.Genre;
 import at.fhtw.swen1.model.Media;
-import at.fhtw.swen1.repository.FavoriteRepository;
-import at.fhtw.swen1.repository.GenreRepository;
-import at.fhtw.swen1.repository.MediaGenreRepository;
-import at.fhtw.swen1.repository.MediaRepository;
+import at.fhtw.swen1.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,12 +42,12 @@ class MediaServiceTest {
         when(genreRepository.getGenre(1)).thenReturn(new Genre());
         Media savedMedia = new Media("Title", "Description", MediaType.MOVIE, 2024,12, new int[]{1},1);
         savedMedia.setId(1);
-        when(mediaRepository.save(any(Media.class))).thenReturn(savedMedia);
+        when(mediaRepository.save(any(Media.class),any(UnitOfWork.class))).thenReturn(savedMedia);
 
         Media result = mediaService.createMedia("Title", "Description", MediaType.MOVIE, 2024,12, new int[]{1},1);
 
         assertEquals("Title",result.getTitle());
-        verify(mediaGenreRepository).save(1,1);
+        verify(mediaGenreRepository).save(1,1,any(UnitOfWork.class));
     }
 
     @Test
@@ -92,7 +89,7 @@ class MediaServiceTest {
 
         mediaService.deleteMedia(1,1);
 
-        verify(mediaRepository).delete(1);
+        verify(mediaRepository).delete(1,any(UnitOfWork.class));
     }
 
     @Test

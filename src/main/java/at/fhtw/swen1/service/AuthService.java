@@ -6,6 +6,7 @@ import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.Session;
 import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.repository.SessionRepository;
+import at.fhtw.swen1.repository.UnitOfWork;
 import at.fhtw.swen1.repository.UserRepository;
 import at.fhtw.swen1.service.validation.AuthValidationService;
 import at.fhtw.swen1.util.TokenUtil;
@@ -41,8 +42,15 @@ public class AuthService {
         String hashedPassword = HashUtil.hashString(password);
 
         User user = new User(username, email, hashedPassword);
-        user = userRepository.save(user);
-        return createNewSession(user.getId());
+        try(UnitOfWork uow = new UnitOfWork()){
+            user = userRepository.save(user,uow);
+            Session newSession = createNewSession(user.getId(),uow);
+
+            uow.commitTransaction();
+
+            return newSession;
+        }
+
     }
 
     public Session login(String usernameOrEmail, String password) throws ValidationException, CredentialsException {
@@ -62,8 +70,13 @@ public class AuthService {
         if(!HashUtil.isEqualStringHash(password, user.getHashedPassword())){
             throw new CredentialsException("Invalid credentials");
         }
+        try(UnitOfWork uow = new UnitOfWork()){
+            Session newSession = createNewSession(user.getId(),uow);
 
-        return createNewSession(user.getId());
+            uow.commitTransaction();
+
+            return newSession;
+        }
     }
 
     public int getLoggedInUser(String token){
@@ -79,13 +92,13 @@ public class AuthService {
         return session.getUserId();
     }
 
-    private Session createNewSession(int userId) {
+    private Session createNewSession(int userId, UnitOfWork uow) {
         String token = TokenUtil.generateToken();
         Timestamp expirationDate = TokenUtil.getExpirationDate();
 
         Session newSession = new Session(token, userId, expirationDate);
 
-        sessionRepository.save(newSession);
+        sessionRepository.save(newSession, uow);
         return newSession;
     }
 

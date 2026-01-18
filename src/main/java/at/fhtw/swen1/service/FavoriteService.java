@@ -4,6 +4,7 @@ import at.fhtw.swen1.exception.AlreadyExistsException;
 import at.fhtw.swen1.exception.NotExistsException;
 import at.fhtw.swen1.repository.FavoriteRepository;
 import at.fhtw.swen1.repository.MediaRepository;
+import at.fhtw.swen1.repository.UnitOfWork;
 
 public class FavoriteService {
 
@@ -24,7 +25,11 @@ public class FavoriteService {
             throw new NotExistsException("Media does not exist");
         }
 
-        favoriteRepository.save(userId, mediaId);
+        try(UnitOfWork uow = new UnitOfWork()){
+            favoriteRepository.save(userId, mediaId,uow);
+            uow.commitTransaction();
+        }
+
     }
 
     public void deleteFavorite(int userId, int mediaId) throws NotExistsException {
@@ -32,6 +37,10 @@ public class FavoriteService {
             throw new NotExistsException("Media not favorited yet");
         }
 
-        favoriteRepository.delete(userId, mediaId);
+        try(UnitOfWork uow = new UnitOfWork()){
+            favoriteRepository.delete(userId, mediaId,uow);
+            uow.commitTransaction();
+        }
+
     }
 }

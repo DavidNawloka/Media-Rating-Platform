@@ -1,7 +1,6 @@
 package at.fhtw.swen1.repository;
 
 import at.fhtw.swen1.model.User;
-import at.fhtw.swen1.util.DatabaseConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -10,7 +9,7 @@ public class UserRepository {
     public User findByUsername(String username) {
         String sql = "SELECT id, username, password, email, favorite_genre_id FROM users WHERE username = ?";
 
-        try( Connection conn = DatabaseConnection.getConnection();
+        try( Connection conn = DatabaseManager.INSTANCE.getConnection();
         PreparedStatement stmt = conn.prepareStatement(sql)){
 
             stmt.setString(1, username);
@@ -35,7 +34,7 @@ public class UserRepository {
     public User findByEmail(String email) {
         String sql = "SELECT id, username, password, email, favorite_genre_id FROM users WHERE email = ?";
 
-        try( Connection conn = DatabaseConnection.getConnection();
+        try( Connection conn = DatabaseManager.INSTANCE.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)){
 
             stmt.setString(1, email);
@@ -60,7 +59,7 @@ public class UserRepository {
     public User findById(int id){
         String sql = "SELECT username, email, favorite_genre_id FROM users WHERE id = ?";
 
-        try( Connection conn = DatabaseConnection.getConnection();
+        try( Connection conn = DatabaseManager.INSTANCE.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)){
 
             stmt.setInt(1, id);
@@ -87,7 +86,7 @@ public class UserRepository {
                      "GROUP BY u.id " +
                      "ORDER BY rating_count DESC " +
                      "LIMIT 3";
-        try( Connection conn = DatabaseConnection.getConnection();
+        try( Connection conn = DatabaseManager.INSTANCE.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)){
 
             ResultSet rs = stmt.executeQuery();
@@ -107,11 +106,10 @@ public class UserRepository {
             throw new RuntimeException("Database error while getting leaderboard",e);
         }
     }
-    public User save(User user){
+    public User save(User user, UnitOfWork uow){
         String sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?) RETURNING id";
-        try( Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)){
-
+        try{
+            PreparedStatement stmt = uow.prepareStatement(sql);
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getHashedPassword());
             stmt.setString(3, user.getEmail());
@@ -130,11 +128,10 @@ public class UserRepository {
 
     }
 
-    public User update(String username, String email, Integer favoriteGenreId, int userId){
+    public User update(String username, String email, Integer favoriteGenreId, int userId, UnitOfWork uow){
         String sql = "UPDATE users SET username = ?, email = ?, favorite_genre_id = ? WHERE id = ?";
-        try( Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)){
-
+        try{
+            PreparedStatement stmt = uow.prepareStatement(sql);
             stmt.setString(1, username);
             stmt.setString(2, email);
             if(favoriteGenreId == null){

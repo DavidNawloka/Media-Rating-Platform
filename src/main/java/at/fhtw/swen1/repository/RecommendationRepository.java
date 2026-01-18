@@ -1,9 +1,7 @@
 package at.fhtw.swen1.repository;
 
 import at.fhtw.swen1.enums.MediaType;
-import at.fhtw.swen1.model.Genre;
 import at.fhtw.swen1.model.Media;
-import at.fhtw.swen1.util.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,18 +10,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class RecommendationRepository {
-    private final MediaRepository mediaRepository;
-
-
-    public RecommendationRepository(MediaRepository mediaRepository) {
-        this.mediaRepository = mediaRepository;
-    }
 
     public ArrayList<Integer> getRatedMediaIds(int userId){
         String sql = "SELECT media_id FROM ratings where user_id=?";
         ArrayList<Integer> mediaIds = new ArrayList<>();
 
-        try(Connection conn = DatabaseConnection.getConnection();
+        try(Connection conn = DatabaseManager.INSTANCE.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
 
             stmt.setInt(1, userId);
@@ -42,7 +34,7 @@ public class RecommendationRepository {
     public ArrayList<Integer> getHighlyRatedGenreIds(int userId){
         String sql = "SELECT DISTINCT mg.genre_id FROM ratings r JOIN media_genres mg ON r.media_id = mg.media_id WHERE r.user_id = ? AND r.stars >= 4";
         ArrayList<Integer> genreIds = new ArrayList<>();
-        try(Connection conn = DatabaseConnection.getConnection();
+        try(Connection conn = DatabaseManager.INSTANCE.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
 
             stmt.setInt(1, userId);
@@ -66,7 +58,7 @@ public class RecommendationRepository {
                      "WHERE mg.genre_id = ? " +
                      "ORDER BY m.id DESC " ;
 
-        try(Connection conn = DatabaseConnection.getConnection();
+        try(Connection conn = DatabaseManager.INSTANCE.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
 
             stmt.setInt(1, genreId);
@@ -103,12 +95,12 @@ public class RecommendationRepository {
                      "WHERE mg.genre_id IN (" + placeholders + ") " +
                      "ORDER BY m.id DESC ";
 
-        try(Connection conn = DatabaseConnection.getConnection();
+        try(Connection conn = DatabaseManager.INSTANCE.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
 
             int idx = 1;
-            for(int i = 0; i < genreIds.size(); i++){
-                stmt.setInt(idx++, genreIds.get(i));
+            for (Integer genreId : genreIds) {
+                stmt.setInt(idx++, genreId);
             }
             ResultSet rs = stmt.executeQuery();
 

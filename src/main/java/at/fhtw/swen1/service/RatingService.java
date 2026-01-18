@@ -7,6 +7,7 @@ import at.fhtw.swen1.model.Rating;
 import at.fhtw.swen1.repository.LikeRepository;
 import at.fhtw.swen1.repository.MediaRepository;
 import at.fhtw.swen1.repository.RatingRepository;
+import at.fhtw.swen1.repository.UnitOfWork;
 
 import java.util.ArrayList;
 
@@ -48,8 +49,11 @@ public class RatingService {
         }
 
         Rating rating = new Rating(mediaId, userId, stars, comment);
-
-        return ratingRepository.save(rating);
+        try(UnitOfWork uow = new UnitOfWork()){
+            Rating savedRating = ratingRepository.save(rating,uow);
+            uow.commitTransaction();
+            return savedRating;
+        }
     }
 
     public void deleteRating(int ratingId, int loggedInUserId) throws NotExistsException {
@@ -58,7 +62,12 @@ public class RatingService {
         if(existingRating == null || existingRating.getUserId() != loggedInUserId){
             throw new NotExistsException("Rating does not exist");
         }
-        ratingRepository.delete(ratingId);
+        try(UnitOfWork uow = new UnitOfWork()){
+            ratingRepository.delete(ratingId,uow);
+            uow.commitTransaction();
+        }
+
+
 
     }
 
@@ -73,7 +82,13 @@ public class RatingService {
         Rating newRating = new Rating(existingRating.getMediaId(), loggedInUserId,stars,comment);
         newRating.setId(ratingId);
 
-        return ratingRepository.update(newRating);
+        try(UnitOfWork uow = new UnitOfWork()){
+            Rating savedNewRating = ratingRepository.update(newRating,uow);
+            uow.commitTransaction();
+            return savedNewRating;
+        }
+
+
     }
 
     public void confirmRating(int loggedInUserId, int ratingId) throws NotExistsException {
@@ -82,7 +97,11 @@ public class RatingService {
             throw new NotExistsException("Rating does not exist");
         }
 
-        ratingRepository.confirmRating(ratingId);
+        try(UnitOfWork uow = new UnitOfWork()){
+            ratingRepository.confirmRating(ratingId,uow);
+            uow.commitTransaction();
+        }
+
     }
 
     public void likeRating(int loggedInUserId, int ratingId) throws NotExistsException, AlreadyExistsException {
@@ -95,6 +114,11 @@ public class RatingService {
             throw new AlreadyExistsException("Rating already liked");
         }
 
-        likeRepository.save(loggedInUserId,ratingId);
+        try(UnitOfWork uow = new UnitOfWork()){
+            likeRepository.save(loggedInUserId,ratingId,uow);
+            uow.commitTransaction();
+        }
+
+
     }
 }

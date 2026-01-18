@@ -8,6 +8,7 @@ import at.fhtw.swen1.model.Rating;
 import at.fhtw.swen1.repository.LikeRepository;
 import at.fhtw.swen1.repository.MediaRepository;
 import at.fhtw.swen1.repository.RatingRepository;
+import at.fhtw.swen1.repository.UnitOfWork;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,13 +43,13 @@ class RatingServiceTest {
     void createRating_Success() throws ValidationException, AlreadyExistsException {
         when(mediaRepository.findById(1)).thenReturn(new Media());
         when(ratingRepository.exists(1,1)).thenReturn(false);
-        when(ratingRepository.save(any(Rating.class))).thenAnswer(i -> i.getArgument(0));
+        when(ratingRepository.save(any(Rating.class),any(UnitOfWork.class))).thenAnswer(i -> i.getArgument(0));
 
         Rating result = ratingService.createRating(1,1,5, "Great!");
 
         assertEquals(5,result.getStars());
         assertEquals("Great!", result.getComment());
-        verify(ratingRepository).save(any(Rating.class));
+        verify(ratingRepository).save(any(Rating.class),any(UnitOfWork.class));
     }
 
     @Test
@@ -83,7 +84,7 @@ class RatingServiceTest {
         when(ratingRepository.findById(1)).thenReturn(existing);
 
         ratingService.deleteRating(1,1);
-        verify(ratingRepository).delete(1);
+        verify(ratingRepository).delete(1,any(UnitOfWork.class));
     }
 
     @Test
@@ -109,7 +110,7 @@ class RatingServiceTest {
 
         ratingService.likeRating(1,1);
 
-        verify(likeRepository).save(1,1);
+        verify(likeRepository).save(1,1,any(UnitOfWork.class));
     }
 
     @Test
@@ -132,7 +133,7 @@ class RatingServiceTest {
         Rating existing = new Rating(1,1, 3, "old comment");
         existing.setId(1);
         when(ratingRepository.findById(1)).thenReturn(existing);
-        when(ratingRepository.update(any(Rating.class))).thenAnswer(i -> i.getArgument(0));
+        when(ratingRepository.update(any(Rating.class),any(UnitOfWork.class))).thenAnswer(i -> i.getArgument(0));
 
         Rating result = ratingService.updateRating(1,1,5,"new comment");
 
@@ -164,7 +165,7 @@ class RatingServiceTest {
 
         ratingService.confirmRating(1,1);
 
-        verify(ratingRepository).confirmRating(1);
+        verify(ratingRepository).confirmRating(1,any(UnitOfWork.class));
     }
 
     @Test
