@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,7 +40,7 @@ class FavoriteServiceTest {
 
         favoriteService.saveFavorite(1,1);
 
-        verify(favoriteRepository).save(1,1,any(UnitOfWork.class));
+        verify(favoriteRepository).save(eq(1), eq(1), any(UnitOfWork.class));
     }
 
     @Test
@@ -63,7 +64,7 @@ class FavoriteServiceTest {
 
         favoriteService.deleteFavorite(1,1);
 
-        verify(favoriteRepository).delete(1,1,any(UnitOfWork.class));
+        verify(favoriteRepository).delete(eq(1), eq(1), any(UnitOfWork.class));
     }
 
     @Test

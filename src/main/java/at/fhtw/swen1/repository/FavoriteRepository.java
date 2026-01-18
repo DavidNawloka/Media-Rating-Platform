@@ -35,7 +35,7 @@ public class FavoriteRepository {
             return favoriteMedias;
 
         }catch (SQLException e){
-            throw new RuntimeException("Database error while finding like entry "+e);
+            throw new RuntimeException("Database error while finding favorite entry "+e);
         }
     }
 
@@ -53,7 +53,7 @@ public class FavoriteRepository {
             return rs.next();
 
         }catch (SQLException e){
-            throw new RuntimeException("Database error while finding like entry "+e);
+            throw new RuntimeException("Database error while finding favorite entry "+e);
         }
     }
 

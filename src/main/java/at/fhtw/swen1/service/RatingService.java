@@ -71,15 +71,17 @@ public class RatingService {
 
     }
 
-    public Rating updateRating(int loggedInUserId, int ratingId, int stars, String comment) throws NotExistsException {
+    public Rating updateRating(int loggedInUserId, int ratingId, int stars, String comment) throws NotExistsException, ValidationException {
         Rating existingRating = ratingRepository.findById(ratingId);
         if(existingRating == null || existingRating.getUserId() != loggedInUserId){
             throw new NotExistsException("Rating does not exist");
         }
 
+        if(stars < 1 || stars > 5) throw new ValidationException("Invalid amount of stars");
+
         if(comment == null) comment = existingRating.getComment();
 
-        Rating newRating = new Rating(existingRating.getMediaId(), loggedInUserId,stars,comment);
+        Rating newRating = new Rating(existingRating.getMediaId(), loggedInUserId,stars,comment, existingRating.isCommentConfirmed());
         newRating.setId(ratingId);
 
         try(UnitOfWork uow = new UnitOfWork()){

@@ -5,7 +5,6 @@ import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.repository.RecommendationRepository;
 import at.fhtw.swen1.repository.UserRepository;
 
-import java.sql.Array;
 import java.util.ArrayList;
 
 public class RecommendationService {

@@ -43,13 +43,14 @@ public class MediaController extends Controller {
             if(method.equals("PUT")){
                 handleUpdateMedia(exchange,mediaId);
             }
-
-            if(method.equals("GET")){
+            else if(method.equals("GET")){
                 handleGetMedia(exchange,mediaId);
             }
-
-            if(method.equals("DELETE")){
+            else if(method.equals("DELETE")){
                 handleDeleteMedia(exchange, mediaId);
+            }
+            else{
+                handleError("Method not allowed", "Incorrect method", 405, exchange);
             }
         }
         else if (path.matches("/api/media/\\d+/rate") && method.equals("POST")){
@@ -62,9 +63,11 @@ public class MediaController extends Controller {
             if(method.equals("GET")){
                 handleGetMediaList(exchange);
             }
-
-            if(method.equals("POST")){
+            else if(method.equals("POST")){
                 handleCreateMedia(exchange);
+            }
+            else{
+                handleError("Method not allowed", "Incorrect method", 405, exchange);
             }
 
         }
@@ -75,13 +78,17 @@ public class MediaController extends Controller {
             if(method.equals("POST")){
                 handleFavoriteMedia(exchange, mediaId);
             }
-
-            if(method.equals("DELETE")){
+            else if(method.equals("DELETE")){
                 handleUnfavoriteMedia(exchange, mediaId);
             }
+            else{
+                handleError("Method not allowed", "Incorrect method", 405, exchange);
+            }
+        }
+        else{
+            handleError("Not found", "Incorrect path", 404, exchange);
         }
 
-        handleError("Not found", "Incorrect path", 404, exchange);
     }
 
     private void handleFavoriteMedia(HttpExchange exchange, int mediaId) throws IOException {
@@ -116,7 +123,7 @@ public class MediaController extends Controller {
 
 
         }catch(NotExistsException e){
-            handleError("Media has not been favorite yet", e.getMessage(), 409, exchange);
+            handleError("Media has not been favorite yet", e.getMessage(), 404, exchange);
         }
         catch(Exception e){
             System.err.println("Unexpected error: " + e.getMessage());
@@ -174,7 +181,7 @@ public class MediaController extends Controller {
 
 
         }catch(ValidationException e){
-            handleError("Media entry data incorrect", e.getMessage(), 409, exchange);
+            handleError("Media entry data incorrect", e.getMessage(), 400, exchange);
 
         }catch(NotExistsException e){
             handleError("Genre not found", e.getMessage(), 404, exchange);
@@ -196,7 +203,7 @@ public class MediaController extends Controller {
             sendResponse(exchange,200, JsonUtil.toJson(media));
 
         }catch(NotExistsException e){
-            handleError("Media entry does not exist", e.getMessage(), 409, exchange);
+            handleError("Media entry does not exist", e.getMessage(), 404, exchange);
 
         }
         catch(Exception e){
@@ -219,7 +226,7 @@ public class MediaController extends Controller {
             handleError("Rating already exists", e.getMessage(), 409, exchange);
         }
         catch(ValidationException e){
-            handleError("Rating entry data incorrect", e.getMessage(), 409, exchange);
+            handleError("Rating entry data incorrect", e.getMessage(), 400, exchange);
         }
         catch(Exception e){
             System.err.println("Unexpected error: " + e.getMessage());
@@ -243,15 +250,14 @@ public class MediaController extends Controller {
                     mediaInputRequest.getMediaType(),
                     mediaInputRequest.getReleaseYear(),
                     mediaInputRequest.getAgeRestriction(),
-                    mediaInputRequest.getGenreIds(),
-                    loggedInUserId
+                    mediaInputRequest.getGenreIds()
             );
 
-            sendResponse(exchange,201, JsonUtil.toJson(newMedia));
+            sendResponse(exchange,200, JsonUtil.toJson(newMedia));
 
         }
         catch(NotExistsException e){
-            handleError("Media entry or genre does not exist", e.getMessage(), 409, exchange);
+            handleError("Media entry or genre does not exist", e.getMessage(), 404, exchange);
 
         }
         catch(Exception e){
@@ -270,7 +276,7 @@ public class MediaController extends Controller {
             sendResponse(exchange,204);
 
         }catch(NotExistsException e){
-            handleError("Media entry does not exist", e.getMessage(), 409, exchange);
+            handleError("Media entry does not exist", e.getMessage(), 404, exchange);
 
         }
         catch(Exception e){

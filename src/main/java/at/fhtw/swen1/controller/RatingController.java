@@ -3,6 +3,7 @@ package at.fhtw.swen1.controller;
 import at.fhtw.swen1.dto.RatingRequest;
 import at.fhtw.swen1.exception.AlreadyExistsException;
 import at.fhtw.swen1.exception.NotExistsException;
+import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.Rating;
 import at.fhtw.swen1.service.AuthService;
 import at.fhtw.swen1.service.RatingService;
@@ -33,9 +34,11 @@ public class RatingController extends Controller{
             if(method.equals("PUT")){
                 handleUpdateRating(exchange,ratingId);
             }
-
-            if(method.equals("DELETE")){
+            else if(method.equals("DELETE")){
                 handleDeleteRating(exchange, ratingId);
+            }
+            else{
+                handleError("Method not allowed", "Incorrect method", 405, exchange);
             }
         }
         else if (path.matches("/api/ratings/\\d+/like") && method.equals("POST")){
@@ -48,6 +51,11 @@ public class RatingController extends Controller{
             int ratingId = parseInt(pathParts[3]);
             handleConfirmRating(exchange, ratingId);
         }
+        else{
+            handleError("Not found", "Incorrect path", 404, exchange);
+        }
+
+
     }
 
     private void handleConfirmRating(HttpExchange exchange, int ratingId) throws IOException {
@@ -60,7 +68,7 @@ public class RatingController extends Controller{
 
 
         }catch(NotExistsException e){
-            handleError("Rating entry does not exist", e.getMessage(), 409, exchange);
+            handleError("Rating entry does not exist", e.getMessage(), 404, exchange);
 
 
         }
@@ -80,7 +88,7 @@ public class RatingController extends Controller{
 
 
         }catch(NotExistsException e){
-            handleError("Rating entry does not exist", e.getMessage(), 409, exchange);
+            handleError("Rating entry does not exist", e.getMessage(), 404, exchange);
         }catch(AlreadyExistsException e) {
             handleError("Rating already liked", e.getMessage(), 409, exchange);
         }
@@ -105,11 +113,14 @@ public class RatingController extends Controller{
                     ratingRequest.getComment()
             );
 
-            sendResponse(exchange,201, JsonUtil.toJson(newRating));
+            sendResponse(exchange,200, JsonUtil.toJson(newRating));
 
         }
+        catch(ValidationException e){
+            handleError("Invalid amount of stars", e.getMessage(), 400, exchange);
+        }
         catch(NotExistsException e){
-            handleError("Rating entry does not exist", e.getMessage(), 409, exchange);
+            handleError("Rating entry does not exist", e.getMessage(), 404, exchange);
         }
         catch(Exception e){
             System.err.println("Unexpected error: " + e.getMessage());
@@ -127,7 +138,7 @@ public class RatingController extends Controller{
             sendResponse(exchange,204);
 
         }catch(NotExistsException e){
-            handleError("Media entry does not exist", e.getMessage(), 409, exchange);
+            handleError("Rating entry does not exist", e.getMessage(), 404, exchange);
 
         }
         catch(Exception e){

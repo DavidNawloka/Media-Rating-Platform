@@ -19,6 +19,7 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -84,7 +85,7 @@ class RatingServiceTest {
         when(ratingRepository.findById(1)).thenReturn(existing);
 
         ratingService.deleteRating(1,1);
-        verify(ratingRepository).delete(1,any(UnitOfWork.class));
+        verify(ratingRepository).delete(eq(1),any(UnitOfWork.class));
     }
 
     @Test
@@ -110,7 +111,7 @@ class RatingServiceTest {
 
         ratingService.likeRating(1,1);
 
-        verify(likeRepository).save(1,1,any(UnitOfWork.class));
+        verify(likeRepository).save(eq(1),eq(1),any(UnitOfWork.class));
     }
 
     @Test
@@ -129,7 +130,7 @@ class RatingServiceTest {
     }
 
     @Test
-    void updateRating_Success() throws NotExistsException{
+    void updateRating_Success() throws NotExistsException, ValidationException {
         Rating existing = new Rating(1,1, 3, "old comment");
         existing.setId(1);
         when(ratingRepository.findById(1)).thenReturn(existing);
@@ -165,7 +166,7 @@ class RatingServiceTest {
 
         ratingService.confirmRating(1,1);
 
-        verify(ratingRepository).confirmRating(1,any(UnitOfWork.class));
+        verify(ratingRepository).confirmRating(eq(1),any(UnitOfWork.class));
     }
 
     @Test

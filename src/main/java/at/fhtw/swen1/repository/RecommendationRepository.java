@@ -41,7 +41,7 @@ public class RecommendationRepository {
             ResultSet rs = stmt.executeQuery();
 
             while(rs.next()){
-                genreIds.add(rs.getInt("media_id"));
+                genreIds.add(rs.getInt("genre_id"));
             }
             return genreIds;
 

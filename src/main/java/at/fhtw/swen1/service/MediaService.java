@@ -23,7 +23,7 @@ public class MediaService {
     }
 
     public Media createMedia(String title, String description, MediaType mediaType, int releaseYear, int ageRestriction, int[] genreIds, int creatorId) throws NotExistsException, ValidationException {
-        if(ValidationService.isNullOrEmpty(title) || ValidationService.isNullOrEmpty(description) || mediaType == null || releaseYear < 0 || ageRestriction < 0 || genreIds == null || creatorId < 0){
+        if(ValidationService.isNullOrEmpty(title) || ValidationService.isNullOrEmpty(description) || mediaType == null || releaseYear < 0 || ageRestriction < 0 || genreIds == null || creatorId < 0 || genreIds.length == 0){
             throw new ValidationException("Invalid media data");
         }
 
@@ -62,8 +62,8 @@ public class MediaService {
         return media;
     }
 
-    public Media updateMedia(int loggedInUserId, int mediaId,String title, String description, MediaType mediaType, int releaseYear, int ageRestriction, int[] genreIds, int creatorId) throws ValidationException, NotExistsException {
-        if(ValidationService.isNullOrEmpty(title) || ValidationService.isNullOrEmpty(description) || mediaType == null || releaseYear < 0 || ageRestriction < 0 || genreIds == null || creatorId < 0){
+    public Media updateMedia(int loggedInUserId, int mediaId,String title, String description, MediaType mediaType, int releaseYear, int ageRestriction, int[] genreIds) throws ValidationException, NotExistsException {
+        if(ValidationService.isNullOrEmpty(title) || ValidationService.isNullOrEmpty(description) || mediaType == null || releaseYear < 0 || ageRestriction < 0 || genreIds == null || genreIds.length == 0){
             throw new ValidationException("Invalid media data");
         }
 
@@ -98,7 +98,7 @@ public class MediaService {
                 }
             }
 
-            Media media = new Media(mediaId, title, description, mediaType, releaseYear, ageRestriction, genreIds, creatorId,existingMedia.getAverageScore());
+            Media media = new Media(mediaId, title, description, mediaType, releaseYear, ageRestriction, genreIds, existingMedia.getCreatorId(),existingMedia.getAverageScore());
 
             Media newMedia = mediaRepository.update(media, uow);
             uow.commitTransaction();

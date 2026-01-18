@@ -69,6 +69,7 @@ public class UserRepository {
                 User user = new User();
                 user.setUsername(rs.getString("username"));
                 user.setEmail(rs.getString("email"));
+                user.setId(id);
                 Integer favoriteGenreId = rs.getObject("favorite_genre_id", Integer.class);
                 user.setFavoriteGenreId(favoriteGenreId);
                 return user;
@@ -97,7 +98,7 @@ public class UserRepository {
                 user.setId(rs.getInt("id"));
                 user.setUsername(rs.getString("username"));
                 user.setEmail(rs.getString("email"));
-                user.setFavoriteGenreId(rs.getInt("favorite_genre_id"));
+                user.setFavoriteGenreId(rs.getObject("favorite_genre_id", Integer.class));
                 users.add(user);
             }
             return users;
@@ -144,6 +145,7 @@ public class UserRepository {
             stmt.executeUpdate();
 
             User user = new User();
+            user.setId(userId);
             user.setEmail(email);
             user.setUsername(username);
             user.setFavoriteGenreId(favoriteGenreId);

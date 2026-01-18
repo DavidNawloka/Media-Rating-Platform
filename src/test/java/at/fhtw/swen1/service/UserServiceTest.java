@@ -17,6 +17,7 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -70,7 +71,7 @@ class UserServiceTest {
         when(userRepository.findByEmail("new@gmail.com")).thenReturn(null);
         when(userRepository.findByUsername("newname")).thenReturn(null);
         User updated = new User("newname","new@gmail.com","hash");
-        when(userRepository.update("newname","new@gmail.com",1,1,any(UnitOfWork.class))).thenReturn(updated);
+        when(userRepository.update(eq("newname"),eq("new@gmail.com"),eq(1),eq(1),any(UnitOfWork.class))).thenReturn(updated);
 
         User result = userService.updateUserProfile("newname","new@gmail.com",1,1);
 

@@ -11,8 +11,8 @@ public class MediaGenreRepository {
 
     public int[] findGenreIdsByMediaId(int mediaId){
         String sql = "SELECT genre_id FROM media_genres WHERE media_id = ?";
-        try(Connection conn = DatabaseManager.INSTANCE.getConnection()){
-            PreparedStatement stmt = conn.prepareStatement(sql);
+        try(Connection conn = DatabaseManager.INSTANCE.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)){
 
             stmt.setInt(1, mediaId);
 

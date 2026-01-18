@@ -29,11 +29,13 @@ public class AuthController extends Controller {
         if(path.equals("/api/users/register") && method.equals("POST")){
             handleRegister(exchange);
         }
-        if(path.equals("/api/users/login") && method.equals("POST")){
+        else if(path.equals("/api/users/login") && method.equals("POST")){
             handleLogin(exchange);
         }
+        else{
+            handleError("Not found", "Incorrect path", 404, exchange);
+        }
 
-        handleError("Not found", "Incorrect path", 404, exchange);
     }
 
     private void handleLogin(HttpExchange exchange) throws IOException{

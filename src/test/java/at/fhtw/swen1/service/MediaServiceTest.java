@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,7 +48,7 @@ class MediaServiceTest {
         Media result = mediaService.createMedia("Title", "Description", MediaType.MOVIE, 2024,12, new int[]{1},1);
 
         assertEquals("Title",result.getTitle());
-        verify(mediaGenreRepository).save(1,1,any(UnitOfWork.class));
+        verify(mediaGenreRepository).save(eq(1),eq(1),any(UnitOfWork.class));
     }
 
     @Test
@@ -89,7 +90,7 @@ class MediaServiceTest {
 
         mediaService.deleteMedia(1,1);
 
-        verify(mediaRepository).delete(1,any(UnitOfWork.class));
+        verify(mediaRepository).delete(eq(1),any(UnitOfWork.class));
     }
 
     @Test

@@ -7,7 +7,6 @@ import at.fhtw.swen1.exception.AlreadyExistsException;
 import at.fhtw.swen1.model.Media;
 import at.fhtw.swen1.model.Rating;
 import at.fhtw.swen1.model.User;
-import at.fhtw.swen1.repository.RecommendationRepository;
 import at.fhtw.swen1.service.*;
 import at.fhtw.swen1.util.JsonUtil;
 import com.sun.net.httpserver.HttpExchange;
@@ -40,8 +39,7 @@ public class UserController extends Controller{
         if(path.equals("/api/leaderboard") && method.equals("GET")){
             handleGetLeaderboard(exchange);
         }
-
-        if(path.matches("/api/users/\\d+/profile")){
+        else if(path.matches("/api/users/\\d+/profile")){
             String[] pathParts = path.split("/");
             int userId = parseInt(pathParts[3]);
 
@@ -51,34 +49,38 @@ public class UserController extends Controller{
             else if(method.equals("PUT")){
                 handleUpdateProfile(exchange,userId);
             }
+            else{
+                handleError("Method not allowed", "Incorrect method", 405, exchange);
+            }
 
         }
-
-        if(path.matches("/api/users/\\d+/recommendations") && method.equals("GET")){
+        else if(path.matches("/api/users/\\d+/recommendations") && method.equals("GET")){
             String[] pathParts = path.split("/");
             int userId = parseInt(pathParts[3]);
             handleGetRecommendations(exchange, userId);
         }
-
-        if(path.matches("/api/users/\\d+/ratings") && method.equals("GET")){
+        else if(path.matches("/api/users/\\d+/ratings") && method.equals("GET")){
             String[] pathParts = path.split("/");
             int userId = parseInt(pathParts[3]);
 
             handleGetRatings(exchange, userId);
         }
-
-        if(path.matches("/api/users/\\d+/favorites") && method.equals("GET")){
+        else if(path.matches("/api/users/\\d+/favorites") && method.equals("GET")){
             String[] pathParts = path.split("/");
             int userId = parseInt(pathParts[3]);
 
             handleGetFavorites(exchange, userId);
         }
-
-        handleError("Not found", "Incorrect path", 404, exchange);
+        else{
+            handleError("Not found", "Incorrect path", 404, exchange);
+        }
     }
 
     private void handleGetLeaderboard(HttpExchange exchange) throws IOException {
         try{
+            int loggedInUserId = getLoggedInUserId(exchange);
+            if(loggedInUserId == -1) return;
+
             ArrayList<User> leaderboard = userService.getLeaderboard();
 
             String responseJson = JsonUtil.toJson(leaderboard);
