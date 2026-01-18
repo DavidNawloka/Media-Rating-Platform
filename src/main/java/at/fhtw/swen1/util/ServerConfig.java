@@ -26,6 +26,7 @@ public class ServerConfig {
         server.createContext("/api/users/login", authController);
 
         server.createContext("/api/users", userController);
+        server.createContext("/api/leaderboard", userController);
 
         server.createContext("/api/media", mediaController);
 

@@ -36,6 +36,11 @@ public class UserController extends Controller{
     public void handle(HttpExchange exchange) throws IOException {
         String path = exchange.getRequestURI().getPath();
         String method = exchange.getRequestMethod();
+
+        if(path.equals("/api/leaderboard") && method.equals("GET")){
+            handleGetLeaderboard(exchange);
+        }
+
         if(path.matches("/api/users/\\d+/profile")){
             String[] pathParts = path.split("/");
             int userId = parseInt(pathParts[3]);
@@ -70,6 +75,18 @@ public class UserController extends Controller{
         }
 
         handleError("Not found", "Incorrect path", 404, exchange);
+    }
+
+    private void handleGetLeaderboard(HttpExchange exchange) throws IOException {
+        try{
+            ArrayList<User> leaderboard = userService.getLeaderboard();
+
+            String responseJson = JsonUtil.toJson(leaderboard);
+            sendResponse(exchange, 200, responseJson);
+        }catch (Exception e){
+            System.err.println("Unexpected error: " + e.getMessage());
+            handleError("Internal error", "An unexpected error occurred", 500, exchange);
+        }
     }
 
     private void handleGetRecommendations(HttpExchange exchange, int userId) throws IOException {
