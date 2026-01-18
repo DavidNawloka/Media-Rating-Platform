@@ -8,6 +8,10 @@ import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class Controller implements HttpHandler {
 
@@ -64,5 +68,18 @@ public abstract class Controller implements HttpHandler {
             handleError("Unauthorized", "User is not logged in", 401, exchange);
         }
         return loggedInUserId;
+    }
+
+    protected Map<String, String> parseQueryParams(String query){
+        Map<String, String> params = new HashMap<>();
+        if(query == null) return params;
+
+        for(String param: query.split("&")){
+            String[] pair = param.split("=");
+            if(pair.length == 2){
+                params.put(pair[0], URLDecoder.decode(pair[1], StandardCharsets.UTF_8));
+            }
+        }
+        return params;
     }
 }

@@ -19,17 +19,18 @@ public class Main {
             RatingRepository ratingRepository = new RatingRepository();
             LikeRepository likeRepository = new LikeRepository();
             FavoriteRepository favoriteRepository = new FavoriteRepository();
-
+            RecommendationRepository recommendationRepository = new RecommendationRepository(mediaRepository);
             // Initialize services
             UserService userService = new UserService(userRepository, genreRepository);
             AuthService authService = new AuthService(userRepository, sessionRepository);
             MediaService mediaService = new MediaService(mediaRepository,genreRepository,mediaGenreRepository,favoriteRepository);
             RatingService ratingService = new RatingService(ratingRepository,mediaRepository,likeRepository);
             FavoriteService favoriteService = new FavoriteService(favoriteRepository,mediaRepository);
+            RecommendationService recommendationService = new RecommendationService(recommendationRepository,userRepository);
 
             // Initialize controllers
             Controller authController = new AuthController(authService);
-            Controller userController = new UserController(userService, authService,ratingService,mediaService);
+            Controller userController = new UserController(userService, authService,ratingService,mediaService,recommendationService);
             Controller mediaController = new MediaController(authService,mediaService,ratingService,favoriteService);
             Controller ratingController = new RatingController(authService, ratingService);
 

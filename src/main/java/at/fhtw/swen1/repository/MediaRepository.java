@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class MediaRepository {
 
@@ -29,12 +30,28 @@ public class MediaRepository {
                 media.setReleaseYear(rs.getInt("release_year"));
                 media.setMediaType(MediaType.fromLabel(rs.getString("media_type")));
                 media.setCreatorId(rs.getInt("creator_id"));
+
+                media.setAverageScore(getAverageRating(mediaId, conn));
                 return media;
             }
             return null;
 
         }catch (SQLException e){
             throw new RuntimeException("Database error while finding media entry "+e);
+        }
+    }
+
+    private float getAverageRating(int mediaId, Connection conn) throws SQLException {
+        String sql = "SELECT COALESCE(AVG(stars), 0) as avg_rating FROM ratings WHERE media_id = ?";
+
+        try(PreparedStatement stmt = conn.prepareStatement(sql)){
+            stmt.setInt(1, mediaId);
+            ResultSet rs = stmt.executeQuery();
+
+            if(rs.next()){
+                return rs.getFloat("avg_rating");
+            }
+            return 0f;
         }
     }
 
@@ -95,5 +112,88 @@ public class MediaRepository {
         }catch (SQLException e){
             throw new RuntimeException("Database error while deleting media entry "+e);
         }
+    }
+
+    public ArrayList<Media> findAllWithFilters(String title, String genreId, String mediaType, String releaseYear, String ageRestriction, String rating, String sortBy) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT DISTINCT media.*, r.avg_rating FROM media " +
+                "LEFT JOIN media_genres ON media.id = media_genres.media_id " +
+                "LEFT JOIN (SELECT media_id, AVG(stars) as avg_rating FROM ratings GROUP BY media_id) r  on media.id = r.media_id " +
+                "WHERE 1=1"
+        );
+
+        ArrayList<Object> params = new ArrayList<>();
+
+        if(title != null && !title.isEmpty()){
+            sql.append(" AND LOWER(media.title) LIKE LOWER(?)");
+            params.add("%" + title + "%");
+        }
+
+        if(genreId != null && !genreId.isEmpty()){
+            sql.append(" AND media_genres.genre_id = ?");
+            params.add(Integer.parseInt(genreId));
+        }
+
+        if (mediaType != null && !mediaType.isEmpty()) {
+            sql.append(" AND media.media_type = ?");
+            params.add(mediaType.toLowerCase());
+        }
+
+        if (releaseYear != null && !releaseYear.isEmpty()) {
+            sql.append(" AND media.release_year = ?");
+            params.add(Integer.parseInt(releaseYear));
+        }
+
+        if (ageRestriction != null && !ageRestriction.isEmpty()) {
+            sql.append(" AND media.age_restriction <= ?");
+            params.add(Integer.parseInt(ageRestriction));
+        }
+
+        if (rating != null && !rating.isEmpty()) {
+            sql.append(" AND r.avg_rating >= ?");
+            params.add(Double.parseDouble(rating));
+        }
+
+        // Add sorting
+        switch (sortBy) {
+            case "title" -> sql.append(" ORDER BY media.title ASC");
+            case "year" -> sql.append(" ORDER BY media.release_year DESC");
+            case "score" -> sql.append(" ORDER BY r.avg_rating DESC NULLS LAST");
+            case null, default -> sql.append(" ORDER BY media.created_at DESC"); // Default sort
+        }
+
+        ArrayList<Media> mediaList = new ArrayList<>();
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+
+            // Set parameters
+            for (int i = 0; i < params.size(); i++) {
+                statement.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                Media media = new Media(
+                        resultSet.getInt("id"),
+                        resultSet.getString("title"),
+                        resultSet.getString("description"),
+                        MediaType.fromLabel(resultSet.getString("media_type")),
+                        resultSet.getInt("release_year"),
+                        resultSet.getInt("age_restriction"),
+                        null,
+                        resultSet.getInt("creator_id"),
+                        resultSet.getFloat("avg_rating")
+                );
+                mediaList.add(media);
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error fetching media list: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return mediaList;
     }
 }

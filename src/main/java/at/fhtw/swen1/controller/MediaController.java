@@ -15,6 +15,8 @@ import at.fhtw.swen1.util.JsonUtil;
 import com.sun.net.httpserver.HttpExchange;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
 
 import static java.lang.Integer.parseInt;
 
@@ -56,6 +58,10 @@ public class MediaController extends Controller {
             handleRateMedia(exchange, mediaId);
         }
         else if(path.equals("/api/media")){
+
+            if(method.equals("GET")){
+                handleGetMediaList(exchange);
+            }
 
             if(method.equals("POST")){
                 handleCreateMedia(exchange);
@@ -118,6 +124,32 @@ public class MediaController extends Controller {
         }
     }
 
+
+    private void  handleGetMediaList(HttpExchange exchange) throws IOException {
+        try{
+            int loggedInUserId = getLoggedInUserId(exchange);
+            if(loggedInUserId == -1) return;
+
+            String query = exchange.getRequestURI().getQuery();
+            Map<String, String> params = parseQueryParams(query);
+
+            ArrayList<Media> mediaList = mediaService.getMediaList(
+                    params.get("title"),
+                    params.get("genreId"),
+                    params.get("mediaType"),
+                    params.get("releaseYear"),
+                    params.get("ageRestriction"),
+                    params.get("rating"),
+                    params.get("sortBy")
+            );
+
+            sendResponse(exchange, 200, JsonUtil.toJson(mediaList));
+
+        }catch(Exception e){
+            System.err.println("Unexpected error: " + e.getMessage());
+            handleError("Internal error", "An unexpected error occurred", 500, exchange);
+        }
+    }
 
     private void handleCreateMedia(HttpExchange exchange) throws IOException {
         try{
@@ -183,7 +215,10 @@ public class MediaController extends Controller {
             Rating rating = ratingService.createRating(mediaId,loggedInUserId,ratingRequest.getStars(),ratingRequest.getComment());
             sendResponse(exchange,201, JsonUtil.toJson(rating));
 
-        }catch(ValidationException e){
+        }catch(AlreadyExistsException e){
+            handleError("Rating already exists", e.getMessage(), 409, exchange);
+        }
+        catch(ValidationException e){
             handleError("Rating entry data incorrect", e.getMessage(), 409, exchange);
         }
         catch(Exception e){

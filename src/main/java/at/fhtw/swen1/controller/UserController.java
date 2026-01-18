@@ -7,15 +7,14 @@ import at.fhtw.swen1.exception.AlreadyExistsException;
 import at.fhtw.swen1.model.Media;
 import at.fhtw.swen1.model.Rating;
 import at.fhtw.swen1.model.User;
-import at.fhtw.swen1.service.AuthService;
-import at.fhtw.swen1.service.MediaService;
-import at.fhtw.swen1.service.RatingService;
-import at.fhtw.swen1.service.UserService;
+import at.fhtw.swen1.repository.RecommendationRepository;
+import at.fhtw.swen1.service.*;
 import at.fhtw.swen1.util.JsonUtil;
 import com.sun.net.httpserver.HttpExchange;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 
 import static java.lang.Integer.parseInt;
 
@@ -23,18 +22,25 @@ public class UserController extends Controller{
     private final UserService userService;
     private final RatingService ratingService;
     private final MediaService mediaService;
+    private final RecommendationService recommendationService;
 
-    public UserController(UserService userService, AuthService authService, RatingService ratingService, MediaService mediaService) {
+    public UserController(UserService userService, AuthService authService, RatingService ratingService, MediaService mediaService, RecommendationService recommendationService) {
         super(authService);
         this.userService = userService;
         this.ratingService = ratingService;
         this.mediaService = mediaService;
+        this.recommendationService = recommendationService;
     }
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         String path = exchange.getRequestURI().getPath();
         String method = exchange.getRequestMethod();
+
+        if(path.equals("/api/leaderboard") && method.equals("GET")){
+            handleGetLeaderboard(exchange);
+        }
+
         if(path.matches("/api/users/\\d+/profile")){
             String[] pathParts = path.split("/");
             int userId = parseInt(pathParts[3]);
@@ -46,6 +52,12 @@ public class UserController extends Controller{
                 handleUpdateProfile(exchange,userId);
             }
 
+        }
+
+        if(path.matches("/api/users/\\d+/recommendations") && method.equals("GET")){
+            String[] pathParts = path.split("/");
+            int userId = parseInt(pathParts[3]);
+            handleGetRecommendations(exchange, userId);
         }
 
         if(path.matches("/api/users/\\d+/ratings") && method.equals("GET")){
@@ -63,6 +75,47 @@ public class UserController extends Controller{
         }
 
         handleError("Not found", "Incorrect path", 404, exchange);
+    }
+
+    private void handleGetLeaderboard(HttpExchange exchange) throws IOException {
+        try{
+            ArrayList<User> leaderboard = userService.getLeaderboard();
+
+            String responseJson = JsonUtil.toJson(leaderboard);
+            sendResponse(exchange, 200, responseJson);
+        }catch (Exception e){
+            System.err.println("Unexpected error: " + e.getMessage());
+            handleError("Internal error", "An unexpected error occurred", 500, exchange);
+        }
+    }
+
+    private void handleGetRecommendations(HttpExchange exchange, int userId) throws IOException {
+        try{
+            int loggedInUserId = getLoggedInUserId(exchange);
+            if(loggedInUserId == -1) return;
+
+            if(loggedInUserId != userId){
+                handleError("Unauthorized", "User cannot get other user", 401, exchange);
+                return;
+            }
+
+
+            String query = exchange.getRequestURI().getQuery();
+            Map<String, String> params = parseQueryParams(query);
+            String type = params.get("type");
+            if(type == null){
+                type = "genre";
+            }
+
+            ArrayList<Media> recommendedMedias = recommendationService.getRecommendations(userId,type.equals("genre"));
+
+            String responseJson = JsonUtil.toJson(recommendedMedias);
+            sendResponse(exchange,200, responseJson);
+
+        }catch(Exception e){
+            System.err.println("Unexpected error: " + e.getMessage());
+            handleError("Internal error", "An unexpected error occurred", 500, exchange);
+        }
     }
 
     private void handleGetFavorites(HttpExchange exchange, int userId) throws IOException {

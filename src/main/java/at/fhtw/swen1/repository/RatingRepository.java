@@ -39,6 +39,27 @@ public class RatingRepository {
         }
     }
 
+    public boolean exists(int userId, int mediaId){
+        String sql = "SELECT * FROM ratings WHERE user_id = ? AND media_id = ?";
+
+        try( Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)){
+
+            stmt.setInt(1, userId);
+            stmt.setInt(2, mediaId);
+            ResultSet rs = stmt.executeQuery();
+
+
+            if(rs.next()){
+                return true;
+            }
+            return false;
+
+        }catch (SQLException e){
+            throw new RuntimeException("Database error while finding rating entry "+e);
+        }
+    }
+
     public Rating findById(int ratingId) {
         String sql = "SELECT * FROM ratings WHERE id = ?";
 

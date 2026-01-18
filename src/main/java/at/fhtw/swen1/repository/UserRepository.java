@@ -4,6 +4,7 @@ import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.util.DatabaseConnection;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class UserRepository {
     public User findByUsername(String username) {
@@ -56,8 +57,6 @@ public class UserRepository {
             throw new RuntimeException("Database error while finding user"+e);
         }
     }
-
-
     public User findById(int id){
         String sql = "SELECT username, email, favorite_genre_id FROM users WHERE id = ?";
 
@@ -81,7 +80,33 @@ public class UserRepository {
             throw new RuntimeException("Database error while finding user"+e);
         }
     }
+    public ArrayList<User> findMostActiveUsers(){
+        String sql = "SELECT u.id, u.username, u.email, u.favorite_genre_id, COUNT(r.id) as rating_count " +
+                     "FROM users u " +
+                     "LEFT JOIN ratings r ON u.id = r.user_id " +
+                     "GROUP BY u.id " +
+                     "ORDER BY rating_count DESC " +
+                     "LIMIT 3";
+        try( Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)){
 
+            ResultSet rs = stmt.executeQuery();
+
+            ArrayList<User> users = new ArrayList<>();
+            while(rs.next()){
+                User user = new User();
+                user.setId(rs.getInt("id"));
+                user.setUsername(rs.getString("username"));
+                user.setEmail(rs.getString("email"));
+                user.setFavoriteGenreId(rs.getInt("favorite_genre_id"));
+                users.add(user);
+            }
+            return users;
+
+        }catch (SQLException e){
+            throw new RuntimeException("Database error while getting leaderboard",e);
+        }
+    }
     public User save(User user){
         String sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?) RETURNING id";
         try( Connection conn = DatabaseConnection.getConnection();

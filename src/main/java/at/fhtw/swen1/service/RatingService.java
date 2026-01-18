@@ -34,13 +34,17 @@ public class RatingService {
         return userRatings;
     }
 
-    public Rating createRating(int mediaId, int userId, int stars, String comment) throws ValidationException {
+    public Rating createRating(int mediaId, int userId, int stars, String comment) throws ValidationException, AlreadyExistsException {
         if(mediaId < 0 || userId < 0 || stars < 1 || stars > 5){
             throw new ValidationException("Invalid rating data");
         }
 
         if(mediaRepository.findById(mediaId) == null){
             throw new ValidationException("Invalid rating data");
+        }
+
+        if(ratingRepository.exists(userId,mediaId)){
+            throw new AlreadyExistsException("User has already rated this entry");
         }
 
         Rating rating = new Rating(mediaId, userId, stars, comment);

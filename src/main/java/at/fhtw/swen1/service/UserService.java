@@ -6,6 +6,8 @@ import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.repository.GenreRepository;
 import at.fhtw.swen1.repository.UserRepository;
 
+import java.util.ArrayList;
+
 public class UserService {
     private final UserRepository userRepository;
     private final GenreRepository genreRepository;
@@ -17,6 +19,10 @@ public class UserService {
 
     public User getUserProfile(int userId){
         return userRepository.findById(userId);
+    }
+
+    public ArrayList<User> getLeaderboard(){
+        return userRepository.findMostActiveUsers();
     }
 
     public User updateUserProfile(String username, String email, Integer favoriteGenreId, int userId) throws NotExistsException, AlreadyExistsException {
