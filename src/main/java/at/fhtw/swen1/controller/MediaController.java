@@ -215,7 +215,10 @@ public class MediaController extends Controller {
             Rating rating = ratingService.createRating(mediaId,loggedInUserId,ratingRequest.getStars(),ratingRequest.getComment());
             sendResponse(exchange,201, JsonUtil.toJson(rating));
 
-        }catch(ValidationException e){
+        }catch(AlreadyExistsException e){
+            handleError("Rating already exists", e.getMessage(), 409, exchange);
+        }
+        catch(ValidationException e){
             handleError("Rating entry data incorrect", e.getMessage(), 409, exchange);
         }
         catch(Exception e){
