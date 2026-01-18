@@ -15,10 +15,7 @@ import at.fhtw.swen1.util.JsonUtil;
 import com.sun.net.httpserver.HttpExchange;
 
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Integer.parseInt;
@@ -128,7 +125,7 @@ public class MediaController extends Controller {
     }
 
 
-    private void handleGetMediaList(HttpExchange exchange) throws IOException {
+    private void  handleGetMediaList(HttpExchange exchange) throws IOException {
         try{
             int loggedInUserId = getLoggedInUserId(exchange);
             if(loggedInUserId == -1) return;
@@ -152,19 +149,6 @@ public class MediaController extends Controller {
             System.err.println("Unexpected error: " + e.getMessage());
             handleError("Internal error", "An unexpected error occurred", 500, exchange);
         }
-    }
-
-    private Map<String, String> parseQueryParams(String query){
-        Map<String, String> params = new HashMap<>();
-        if(query == null) return params;
-
-        for(String param: query.split("&")){
-            String[] pair = param.split("=");
-            if(pair.length == 2){
-                params.put(pair[0], URLDecoder.decode(pair[1], StandardCharsets.UTF_8));
-            }
-        }
-        return params;
     }
 
     private void handleCreateMedia(HttpExchange exchange) throws IOException {
