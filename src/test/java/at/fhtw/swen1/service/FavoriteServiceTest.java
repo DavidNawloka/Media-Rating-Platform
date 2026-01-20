@@ -10,6 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,12 +37,14 @@ class FavoriteServiceTest {
 
     @Test
     void saveFavorite_Success() throws AlreadyExistsException, NotExistsException{
-        when(favoriteRepository.exists(1,1)).thenReturn(false);
-        when(mediaRepository.findById(1)).thenReturn(new Media());
+        try(MockedConstruction<UnitOfWork> mocked = Mockito.mockConstruction(UnitOfWork.class)) {
+            when(favoriteRepository.exists(1, 1)).thenReturn(false);
+            when(mediaRepository.findById(1)).thenReturn(new Media());
 
-        favoriteService.saveFavorite(1,1);
+            favoriteService.saveFavorite(1, 1);
 
-        verify(favoriteRepository).save(eq(1), eq(1), any(UnitOfWork.class));
+            verify(favoriteRepository).save(eq(1), eq(1), any(UnitOfWork.class));
+        }
     }
 
     @Test
@@ -60,11 +64,13 @@ class FavoriteServiceTest {
 
     @Test
     void deleteFavorite_Success() throws NotExistsException {
-        when(favoriteRepository.exists(1,1)).thenReturn(true);
+        try(MockedConstruction<UnitOfWork> mocked = Mockito.mockConstruction(UnitOfWork.class)) {
+            when(favoriteRepository.exists(1, 1)).thenReturn(true);
 
-        favoriteService.deleteFavorite(1,1);
+            favoriteService.deleteFavorite(1, 1);
 
-        verify(favoriteRepository).delete(eq(1), eq(1), any(UnitOfWork.class));
+            verify(favoriteRepository).delete(eq(1), eq(1), any(UnitOfWork.class));
+        }
     }
 
     @Test

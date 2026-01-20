@@ -10,6 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,15 +42,17 @@ class MediaServiceTest {
 
     @Test
     void createMedia_Success() throws NotExistsException, ValidationException{
-        when(genreRepository.getGenre(1)).thenReturn(new Genre());
-        Media savedMedia = new Media("Title", "Description", MediaType.MOVIE, 2024,12, new int[]{1},1);
-        savedMedia.setId(1);
-        when(mediaRepository.save(any(Media.class),any(UnitOfWork.class))).thenReturn(savedMedia);
+        try(MockedConstruction<UnitOfWork> mocked = Mockito.mockConstruction(UnitOfWork.class)) {
+            when(genreRepository.getGenre(1)).thenReturn(new Genre());
+            Media savedMedia = new Media("Title", "Description", MediaType.MOVIE, 2024, 12, new int[]{1}, 1);
+            savedMedia.setId(1);
+            when(mediaRepository.save(any(Media.class), any(UnitOfWork.class))).thenReturn(savedMedia);
 
-        Media result = mediaService.createMedia("Title", "Description", MediaType.MOVIE, 2024,12, new int[]{1},1);
+            Media result = mediaService.createMedia("Title", "Description", MediaType.MOVIE, 2024, 12, new int[]{1}, 1);
 
-        assertEquals("Title",result.getTitle());
-        verify(mediaGenreRepository).save(eq(1),eq(1),any(UnitOfWork.class));
+            assertEquals("Title", result.getTitle());
+            verify(mediaGenreRepository).save(eq(1), eq(1), any(UnitOfWork.class));
+        }
     }
 
     @Test
@@ -84,13 +88,15 @@ class MediaServiceTest {
 
     @Test
     void deleteMedia_Success() throws NotExistsException{
-        Media media = new Media();
-        media.setCreatorId(1);
-        when(mediaRepository.findById(1)).thenReturn(media);
+        try(MockedConstruction<UnitOfWork> mocked = Mockito.mockConstruction(UnitOfWork.class)) {
+            Media media = new Media();
+            media.setCreatorId(1);
+            when(mediaRepository.findById(1)).thenReturn(media);
 
-        mediaService.deleteMedia(1,1);
+            mediaService.deleteMedia(1, 1);
 
-        verify(mediaRepository).delete(eq(1),any(UnitOfWork.class));
+            verify(mediaRepository).delete(eq(1), any(UnitOfWork.class));
+        }
     }
 
     @Test

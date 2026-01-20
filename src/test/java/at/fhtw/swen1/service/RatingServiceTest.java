@@ -13,6 +13,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -42,15 +44,17 @@ class RatingServiceTest {
 
     @Test
     void createRating_Success() throws ValidationException, AlreadyExistsException {
-        when(mediaRepository.findById(1)).thenReturn(new Media());
-        when(ratingRepository.exists(1,1)).thenReturn(false);
-        when(ratingRepository.save(any(Rating.class),any(UnitOfWork.class))).thenAnswer(i -> i.getArgument(0));
+        try(MockedConstruction<UnitOfWork> mocked = Mockito.mockConstruction(UnitOfWork.class)) {
+            when(mediaRepository.findById(1)).thenReturn(new Media());
+            when(ratingRepository.exists(1, 1)).thenReturn(false);
+            when(ratingRepository.save(any(Rating.class), any(UnitOfWork.class))).thenAnswer(i -> i.getArgument(0));
 
-        Rating result = ratingService.createRating(1,1,5, "Great!");
+            Rating result = ratingService.createRating(1, 1, 5, "Great!");
 
-        assertEquals(5,result.getStars());
-        assertEquals("Great!", result.getComment());
-        verify(ratingRepository).save(any(Rating.class),any(UnitOfWork.class));
+            assertEquals(5, result.getStars());
+            assertEquals("Great!", result.getComment());
+            verify(ratingRepository).save(any(Rating.class), any(UnitOfWork.class));
+        }
     }
 
     @Test
@@ -80,12 +84,14 @@ class RatingServiceTest {
 
     @Test
     void deleteRating_Success() throws NotExistsException{
-        Rating existing = new Rating(1,1,5, "test");
-        existing.setId(1);
-        when(ratingRepository.findById(1)).thenReturn(existing);
+        try(MockedConstruction<UnitOfWork> mocked = Mockito.mockConstruction(UnitOfWork.class)) {
+            Rating existing = new Rating(1, 1, 5, "test");
+            existing.setId(1);
+            when(ratingRepository.findById(1)).thenReturn(existing);
 
-        ratingService.deleteRating(1,1);
-        verify(ratingRepository).delete(eq(1),any(UnitOfWork.class));
+            ratingService.deleteRating(1, 1);
+            verify(ratingRepository).delete(eq(1), any(UnitOfWork.class));
+        }
     }
 
     @Test
@@ -106,12 +112,14 @@ class RatingServiceTest {
 
     @Test
     void likeRating_Success() throws NotExistsException, AlreadyExistsException{
-        when(ratingRepository.findById(1)).thenReturn(new Rating());
-        when(likeRepository.find(1,1)).thenReturn(false);
+        try(MockedConstruction<UnitOfWork> mocked = Mockito.mockConstruction(UnitOfWork.class)) {
+            when(ratingRepository.findById(1)).thenReturn(new Rating());
+            when(likeRepository.find(1, 1)).thenReturn(false);
 
-        ratingService.likeRating(1,1);
+            ratingService.likeRating(1, 1);
 
-        verify(likeRepository).save(eq(1),eq(1),any(UnitOfWork.class));
+            verify(likeRepository).save(eq(1), eq(1), any(UnitOfWork.class));
+        }
     }
 
     @Test
@@ -131,15 +139,17 @@ class RatingServiceTest {
 
     @Test
     void updateRating_Success() throws NotExistsException, ValidationException {
-        Rating existing = new Rating(1,1, 3, "old comment");
-        existing.setId(1);
-        when(ratingRepository.findById(1)).thenReturn(existing);
-        when(ratingRepository.update(any(Rating.class),any(UnitOfWork.class))).thenAnswer(i -> i.getArgument(0));
+        try(MockedConstruction<UnitOfWork> mocked = Mockito.mockConstruction(UnitOfWork.class)) {
+            Rating existing = new Rating(1, 1, 3, "old comment");
+            existing.setId(1);
+            when(ratingRepository.findById(1)).thenReturn(existing);
+            when(ratingRepository.update(any(Rating.class), any(UnitOfWork.class))).thenAnswer(i -> i.getArgument(0));
 
-        Rating result = ratingService.updateRating(1,1,5,"new comment");
+            Rating result = ratingService.updateRating(1, 1, 5, "new comment");
 
-        assertEquals(5, result.getStars());
-        assertEquals("new comment", result.getComment());
+            assertEquals(5, result.getStars());
+            assertEquals("new comment", result.getComment());
+        }
     }
 
     @Test
@@ -159,14 +169,16 @@ class RatingServiceTest {
 
     @Test
     void confirmRating_Success() throws NotExistsException{
-        Rating existing = new Rating(1,1,5, "comment");
-        existing.setId(1);
-        when(ratingRepository.findById(1)).thenReturn(existing);
+        try(MockedConstruction<UnitOfWork> mocked = Mockito.mockConstruction(UnitOfWork.class)) {
+            Rating existing = new Rating(1, 1, 5, "comment");
+            existing.setId(1);
+            when(ratingRepository.findById(1)).thenReturn(existing);
 
 
-        ratingService.confirmRating(1,1);
+            ratingService.confirmRating(1, 1);
 
-        verify(ratingRepository).confirmRating(eq(1),any(UnitOfWork.class));
+            verify(ratingRepository).confirmRating(eq(1), any(UnitOfWork.class));
+        }
     }
 
     @Test

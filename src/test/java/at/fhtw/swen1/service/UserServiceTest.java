@@ -11,6 +11,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -67,15 +69,17 @@ class UserServiceTest {
 
     @Test
     void updateUserProfile_Success() throws NotExistsException, AlreadyExistsException{
-        when(genreRepository.getGenre(1)).thenReturn(new Genre());
-        when(userRepository.findByEmail("new@gmail.com")).thenReturn(null);
-        when(userRepository.findByUsername("newname")).thenReturn(null);
-        User updated = new User("newname","new@gmail.com","hash");
-        when(userRepository.update(eq("newname"),eq("new@gmail.com"),eq(1),eq(1),any(UnitOfWork.class))).thenReturn(updated);
+        try(MockedConstruction<UnitOfWork> mocked = Mockito.mockConstruction(UnitOfWork.class)) {
+            when(genreRepository.getGenre(1)).thenReturn(new Genre());
+            when(userRepository.findByEmail("new@gmail.com")).thenReturn(null);
+            when(userRepository.findByUsername("newname")).thenReturn(null);
+            User updated = new User("newname", "new@gmail.com", "hash");
+            when(userRepository.update(eq("newname"), eq("new@gmail.com"), eq(1), eq(1), any(UnitOfWork.class))).thenReturn(updated);
 
-        User result = userService.updateUserProfile("newname","new@gmail.com",1,1);
+            User result = userService.updateUserProfile("newname", "new@gmail.com", 1, 1);
 
-        assertEquals("newname",result.getUsername());
+            assertEquals("newname", result.getUsername());
+        }
     }
 
     @Test

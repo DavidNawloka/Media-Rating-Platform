@@ -13,7 +13,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.MockedConstruction;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -36,15 +38,17 @@ class AuthServiceTest {
 
     @Test
     void register_Success() throws AlreadyExistsException, ValidationException{
-        when(userRepository.findByUsername("newuser")).thenReturn(null);
-        when(userRepository.findByEmail("new@email.com")).thenReturn(null);
-        User savedUser = new User("newuser","new@email.com", "hash");
-        savedUser.setId(1);
-        when(userRepository.save(any(User.class),any(UnitOfWork.class))).thenReturn(savedUser);
+        try(MockedConstruction<UnitOfWork> mocked = Mockito.mockConstruction(UnitOfWork.class)){
+            when(userRepository.findByUsername("newuser")).thenReturn(null);
+            when(userRepository.findByEmail("new@email.com")).thenReturn(null);
+            User savedUser = new User("newuser","new@email.com", "hash");
+            savedUser.setId(1);
+            when(userRepository.save(any(User.class),any(UnitOfWork.class))).thenReturn(savedUser);
 
-        Session result = authService.register("newuser","new@email.com","password123");
-        assertNotNull(result);
-        verify(sessionRepository).save(any(Session.class),any(UnitOfWork.class));
+            Session result = authService.register("newuser","new@email.com","password123");
+            assertNotNull(result);
+            verify(sessionRepository).save(any(Session.class),any(UnitOfWork.class));
+        }
     }
 
     @Test
@@ -73,13 +77,15 @@ class AuthServiceTest {
 
     @Test
     void login_Success() throws ValidationException, CredentialsException {
-        User user = new User("testuser","test@email.com", HashUtil.hashString("password123"));
-        user.setId(1);
-        when(userRepository.findByUsername("testuser")).thenReturn(user);
+        try(MockedConstruction<UnitOfWork> mocked = Mockito.mockConstruction(UnitOfWork.class)) {
+            User user = new User("testuser", "test@email.com", HashUtil.hashString("password123"));
+            user.setId(1);
+            when(userRepository.findByUsername("testuser")).thenReturn(user);
 
-        Session result = authService.login("testuser","password123");
+            Session result = authService.login("testuser", "password123");
 
-        assertNotNull(result);
+            assertNotNull(result);
+        }
     }
 
     @Test
