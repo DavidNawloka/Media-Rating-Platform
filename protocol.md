@@ -123,6 +123,18 @@ Die Tests konzentrieren sich auf die Service-Layer, da dort die gesamte Business
 
 ---
 
+## SOLID Prinzipien
+
+### Single Responsibility Principle 
+
+Jede Klasse im Projekt hat genau eine Verantwortung und somit nur einen Grund, sich zu ändern. Der AuthController kümmert sich ausschließlich um HTTP-Requests und Responses für Authentifizierung. Der AuthService enthält nur die Business-Logik für Registrierung, Login und Session-Verwaltung. Das UserRepository ist einzig für Datenbankoperationen bezüglich User zuständig. Der AuthValidationService validiert nur Eingabedaten. Wenn sich Validierungsregeln ändern, muss nur der AuthValidationService angepasst werden. Wenn sich das Datenbankschema ändert, muss nur das entsprechende Repository geändert werden. Diese klare Trennung macht den Code wartbar und testbar.
+
+### Dependency Inversion Principle 
+
+Der AuthService erstellt seine Abhängigkeiten nicht selbst, sondern bekommt UserRepository und SessionRepository durch den Konstruktor injiziert. Dadurch ist der AuthService nicht an konkrete Implementierungen gebunden. Der größte Vorteil zeigt sich beim Testen: In Unit Tests können Mock-Objekte injiziert werden, um die Business-Logik isoliert zu testen. In Integration Tests werden die echten Repository-Implementierungen verwendet. Diese lose Kopplung macht den Code flexibel und austauschbar.
+
+---
+
 ## Aufgetretene Probleme und Lösungen
 
 ### Problem 1: Transaction Management
