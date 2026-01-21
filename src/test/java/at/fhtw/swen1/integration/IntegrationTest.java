@@ -2,16 +2,14 @@ package at.fhtw.swen1.integration;
 
 import at.fhtw.swen1.enums.MediaType;
 import at.fhtw.swen1.exception.AlreadyExistsException;
+import at.fhtw.swen1.exception.CredentialsException;
 import at.fhtw.swen1.exception.NotExistsException;
 import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.Media;
-import at.fhtw.swen1.model.Rating;
 import at.fhtw.swen1.model.Session;
 import at.fhtw.swen1.repository.*;
 import at.fhtw.swen1.service.AuthService;
-import at.fhtw.swen1.service.FavoriteService;
 import at.fhtw.swen1.service.MediaService;
-import at.fhtw.swen1.service.RatingService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -23,10 +21,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @Testcontainers
-public class MediaRatingIntegrationTest {
-
+public class IntegrationTest {
     @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15").withCopyFileToContainer(MountableFile.forHostPath("database/init.sql"),"/docker-entrypoint-initdb.d/init.sql");
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16").withCopyFileToContainer(MountableFile.forHostPath("database/init.sql"),"/docker-entrypoint-initdb.d/init.sql");
 
     @BeforeAll
     static void setup(){
@@ -35,6 +32,26 @@ public class MediaRatingIntegrationTest {
         System.setProperty("DB_NAME",postgres.getDatabaseName());
         System.setProperty("DB_USER",postgres.getUsername());
         System.setProperty("DB_PASSWORD",postgres.getPassword());
+    }
+
+    @Test
+    void registerAndLogin_shouldCreateUserAndSession() throws ValidationException, AlreadyExistsException, CredentialsException {
+        String uniqueUsername = "testuser_" + System.currentTimeMillis();
+
+        UserRepository userRepository = new UserRepository();
+        SessionRepository sessionRepository = new SessionRepository();
+        AuthService authService = new AuthService(userRepository,sessionRepository);
+
+        Session registerSession = authService.register(uniqueUsername,uniqueUsername + "@example.com","password123");
+
+        assertNotNull(registerSession);
+        assertNotNull(registerSession.getToken());
+
+        Session loginSession = authService.login(uniqueUsername,"password123");
+
+        assertNotNull(loginSession);
+        assertNotNull(loginSession.getToken());
+
     }
 
     @Test
@@ -65,4 +82,5 @@ public class MediaRatingIntegrationTest {
 
 
     }
+
 }
