@@ -4,6 +4,8 @@ import at.fhtw.swen1.enums.MediaType;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+
 @Getter
 @Setter
 public class Media {
@@ -16,6 +18,7 @@ public class Media {
     private int[] genreIds;
     private int creatorId;
     private float averageScore;
+    private ArrayList<Rating> ratings;
 
     public Media(){}
     public Media(String title, String description, MediaType mediaType, int releaseYear, int ageRestriction, int[] genreIds, int creatorId) {

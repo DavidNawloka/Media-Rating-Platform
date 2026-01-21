@@ -5,6 +5,7 @@ import at.fhtw.swen1.exception.AlreadyExistsException;
 import at.fhtw.swen1.exception.NotExistsException;
 import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.Media;
+import at.fhtw.swen1.model.Rating;
 import at.fhtw.swen1.model.Session;
 import at.fhtw.swen1.repository.*;
 import at.fhtw.swen1.service.AuthService;
@@ -49,7 +50,8 @@ public class MediaRatingIntegrationTest {
         GenreRepository genreRepository = new GenreRepository();
         MediaGenreRepository mediaGenreRepository = new MediaGenreRepository();
         FavoriteRepository favoriteRepository = new FavoriteRepository();
-        MediaService mediaService = new MediaService(mediaRepository,genreRepository,mediaGenreRepository,favoriteRepository);
+        RatingRepository ratingRepository = new RatingRepository();
+        MediaService mediaService = new MediaService(mediaRepository,genreRepository,mediaGenreRepository,favoriteRepository, ratingRepository);
 
 
         Session session = authService.register(uniqueUsername, uniqueUsername+"test.com","password123");

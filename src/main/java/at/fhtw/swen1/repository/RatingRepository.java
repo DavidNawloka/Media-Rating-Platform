@@ -2,6 +2,7 @@ package at.fhtw.swen1.repository;
 
 import at.fhtw.swen1.model.Rating;
 
+import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,6 +10,35 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class RatingRepository {
+
+    public ArrayList<Rating> findByMediaId(int mediaId){
+        String sql = "SELECT * FROM ratings WHERE media_id = ?";
+
+        try( Connection conn = DatabaseManager.INSTANCE.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)){
+
+            stmt.setInt(1, mediaId);
+            ResultSet rs = stmt.executeQuery();
+
+            ArrayList<Rating> ratings = new ArrayList<>();
+
+            while(rs.next()){
+                Rating rating = new Rating();
+                rating.setId(rs.getInt("id"));
+                rating.setMediaId(rs.getInt("media_id"));
+                rating.setUserId(rs.getInt("user_id"));
+                rating.setStars(rs.getInt("stars"));
+                rating.setComment(rs.getString("comment"));
+                rating.setCommentConfirmed(rs.getBoolean("comment_confirmed"));
+                rating.setCreatedAt(rs.getTimestamp("created_at"));
+                ratings.add(rating);
+            }
+            return ratings;
+
+        }catch (SQLException e){
+            throw new RuntimeException("Database error while finding rating entry "+e);
+        }
+    }
 
     public ArrayList<Rating> findByUserId(int userId){
         String sql = "SELECT * FROM ratings WHERE user_id = ?";
@@ -29,6 +59,7 @@ public class RatingRepository {
                 rating.setStars(rs.getInt("stars"));
                 rating.setComment(rs.getString("comment"));
                 rating.setCommentConfirmed(rs.getBoolean("comment_confirmed"));
+                rating.setCreatedAt(rs.getTimestamp("created_at"));
                 ratings.add(rating);
             }
             return ratings;
@@ -37,6 +68,7 @@ public class RatingRepository {
             throw new RuntimeException("Database error while finding rating entry "+e);
         }
     }
+
 
     public boolean exists(int userId, int mediaId){
         String sql = "SELECT * FROM ratings WHERE user_id = ? AND media_id = ?";
@@ -73,6 +105,7 @@ public class RatingRepository {
                 rating.setStars(rs.getInt("stars"));
                 rating.setComment(rs.getString("comment"));
                 rating.setCommentConfirmed(rs.getBoolean("comment_confirmed"));
+                rating.setCreatedAt(rs.getTimestamp("created_at"));
                 return rating;
             }
             return null;
@@ -147,6 +180,22 @@ public class RatingRepository {
 
         }catch (SQLException e){
             throw new RuntimeException("Database error while deleting rating entry "+e);
+        }
+    }
+
+    public float getAverageRating(int mediaId){
+        String sql = "SELECT COALESCE(AVG(stars),0) as avg_rating FROM ratings WHERE media_id = ?";
+
+        try(Connection conn = DatabaseManager.INSTANCE.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)){
+            stmt.setInt(1, mediaId);
+            ResultSet rs = stmt.executeQuery();
+
+            if(rs.next()){
+                return rs.getFloat("avg_rating");
+            }
+            return 0f;
+        } catch (SQLException e) {
+            throw new RuntimeException("Database error while getting average rating "+e);
         }
     }
 

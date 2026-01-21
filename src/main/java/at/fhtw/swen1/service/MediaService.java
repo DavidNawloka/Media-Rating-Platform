@@ -4,6 +4,7 @@ import at.fhtw.swen1.enums.MediaType;
 import at.fhtw.swen1.exception.NotExistsException;
 import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.Media;
+import at.fhtw.swen1.model.Rating;
 import at.fhtw.swen1.repository.*;
 import at.fhtw.swen1.service.validation.ValidationService;
 
@@ -14,12 +15,13 @@ public class MediaService {
     private final GenreRepository genreRepository;
     private final MediaGenreRepository mediaGenreRepository;
     private final FavoriteRepository favoriteRepository;
-
-    public MediaService(MediaRepository mediaRepository, GenreRepository genreRepository, MediaGenreRepository mediaGenreRepository, FavoriteRepository favoriteRepository) {
+    private final RatingRepository ratingRepository;
+    public MediaService(MediaRepository mediaRepository, GenreRepository genreRepository, MediaGenreRepository mediaGenreRepository, FavoriteRepository favoriteRepository, RatingRepository ratingRepository) {
         this.mediaRepository = mediaRepository;
         this.genreRepository = genreRepository;
         this.mediaGenreRepository = mediaGenreRepository;
         this.favoriteRepository = favoriteRepository;
+        this.ratingRepository = ratingRepository;
     }
 
     public Media createMedia(String title, String description, MediaType mediaType, int releaseYear, int ageRestriction, int[] genreIds, int creatorId) throws NotExistsException, ValidationException {
@@ -48,7 +50,13 @@ public class MediaService {
     }
 
     public ArrayList<Media> getFavoriteMedias(int userId){
-        return favoriteRepository.findByUserId(userId);
+        ArrayList<Media> mediaList = favoriteRepository.findByUserId(userId);
+
+        for(Media media: mediaList){
+            media.setGenreIds(mediaGenreRepository.findGenreIdsByMediaId(media.getId()));
+            media.setAverageScore(ratingRepository.getAverageRating(media.getId()));
+        }
+        return mediaList;
     }
 
     public Media getMedia(int mediaId, int loggedInUserId, boolean onlyOwner) throws NotExistsException{
@@ -59,6 +67,13 @@ public class MediaService {
 
         int[] genreIds = mediaGenreRepository.findGenreIdsByMediaId(mediaId);
         media.setGenreIds(genreIds);
+
+        ArrayList<Rating> ratings = ratingRepository.findByMediaId(mediaId);
+        for(Rating rating : ratings){
+            if(!rating.isCommentConfirmed()) rating.setComment(null);
+        }
+        media.setRatings(ratings);
+
         return media;
     }
 

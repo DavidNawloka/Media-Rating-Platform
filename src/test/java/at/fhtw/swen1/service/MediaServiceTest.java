@@ -32,12 +32,14 @@ class MediaServiceTest {
     private MediaGenreRepository mediaGenreRepository;
     @Mock
     private FavoriteRepository favoriteRepository;
+    @Mock
+    private RatingRepository ratingRepository;
 
     private MediaService mediaService;
 
     @BeforeEach
     void setUp() {
-        mediaService = new MediaService(mediaRepository,genreRepository,mediaGenreRepository,favoriteRepository);
+        mediaService = new MediaService(mediaRepository,genreRepository,mediaGenreRepository,favoriteRepository,ratingRepository);
     }
 
     @Test

@@ -117,12 +117,16 @@ public class MediaRepository {
                 "LEFT JOIN (SELECT media_id, AVG(stars) as avg_rating FROM ratings GROUP BY media_id) r  on media.id = r.media_id " +
                 "WHERE 1=1"
         );
+        // Distinct so that media with multiple genres appear only once
+        // first Left join so that media without genres also appear,
+        // second left join of subquery so that media without ratings also appear
+        // WHERE 1=1 to make appending filters easier
 
         ArrayList<Object> params = new ArrayList<>();
 
         if(title != null && !title.isEmpty()){
             sql.append(" AND LOWER(media.title) LIKE LOWER(?)");
-            params.add("%" + title + "%");
+            params.add("%" + title + "%"); //% so that title can be anywhere withn the word
         }
 
         if(genreId != null && !genreId.isEmpty()){
@@ -187,7 +191,6 @@ public class MediaRepository {
 
         } catch (Exception e) {
             System.err.println("Error fetching media list: " + e.getMessage());
-            e.printStackTrace();
         }
 
         return mediaList;

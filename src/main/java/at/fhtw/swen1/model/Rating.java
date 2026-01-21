@@ -2,6 +2,7 @@ package at.fhtw.swen1.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import java.sql.Timestamp;
 
 @Getter
 @Setter
@@ -12,6 +13,7 @@ public class Rating {
     private int stars;
     private String comment;
     private boolean commentConfirmed;
+    private Timestamp createdAt;
 
     public Rating(){}
     public Rating(int mediaId, int userId, int stars, String comment) {

@@ -1,10 +1,12 @@
 package at.fhtw.swen1.service;
 
+import at.fhtw.swen1.dto.ProfileResponse;
 import at.fhtw.swen1.exception.AlreadyExistsException;
 import at.fhtw.swen1.exception.NotExistsException;
 import at.fhtw.swen1.model.Genre;
 import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.repository.GenreRepository;
+import at.fhtw.swen1.repository.RatingRepository;
 import at.fhtw.swen1.repository.UnitOfWork;
 import at.fhtw.swen1.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,12 +30,14 @@ class UserServiceTest {
     private UserRepository userRepository;
     @Mock
     private GenreRepository genreRepository;
+    @Mock
+    private RatingRepository ratingRepository;
 
     private UserService userService;
 
     @BeforeEach
     void setUp() {
-        userService = new UserService(userRepository,genreRepository);
+        userService = new UserService(userRepository,genreRepository,ratingRepository);
     }
 
     @Test
@@ -41,7 +45,7 @@ class UserServiceTest {
         User user = new User("testuser", "test@gmail.com", "hash");
         when(userRepository.findById(1)).thenReturn(user);
 
-        User result = userService.getUserProfile(1);
+        ProfileResponse result = userService.getUserProfile(1);
 
         assertEquals("testuser",result.getUsername());
     }
@@ -50,7 +54,7 @@ class UserServiceTest {
     void getUserProfile_NotExists_ReturnsNull(){
         when(userRepository.findById(1)).thenReturn(null);
 
-        User result = userService.getUserProfile(1);
+        ProfileResponse result = userService.getUserProfile(1);
 
         assertNull(result);
     }
@@ -76,7 +80,7 @@ class UserServiceTest {
             User updated = new User("newname", "new@gmail.com", "hash");
             when(userRepository.update(eq("newname"), eq("new@gmail.com"), eq(1), eq(1), any(UnitOfWork.class))).thenReturn(updated);
 
-            User result = userService.updateUserProfile("newname", "new@gmail.com", 1, 1);
+            ProfileResponse result = userService.updateUserProfile("newname", "new@gmail.com", 1, 1);
 
             assertEquals("newname", result.getUsername());
         }

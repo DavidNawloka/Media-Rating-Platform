@@ -174,9 +174,8 @@ public class UserController extends Controller{
                 return;
             }
 
-            User user = userService.getUserProfile(loggedInUserId);
+            ProfileResponse profileResponse = userService.getUserProfile(loggedInUserId);
 
-            ProfileResponse profileResponse = new ProfileResponse(user);
 
             String responseJson = JsonUtil.toJson(profileResponse);
             sendResponse(exchange,200, responseJson);
@@ -201,9 +200,8 @@ public class UserController extends Controller{
 
             ProfileUpdateRequest profileUpdateRequest = getDTO(exchange, ProfileUpdateRequest.class);
 
-            User newUser = userService.updateUserProfile(profileUpdateRequest.getUsername(),profileUpdateRequest.getEmail(),profileUpdateRequest.getFavoriteGenreId(),userId);
+            ProfileResponse profileResponse = userService.updateUserProfile(profileUpdateRequest.getUsername(),profileUpdateRequest.getEmail(),profileUpdateRequest.getFavoriteGenreId(),userId);
 
-            ProfileResponse profileResponse = new ProfileResponse(newUser);
             sendResponse(exchange,200, JsonUtil.toJson(profileResponse));
 
         }catch(AlreadyExistsException e){
