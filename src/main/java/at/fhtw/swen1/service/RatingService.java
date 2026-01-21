@@ -81,7 +81,7 @@ public class RatingService {
 
         if(comment == null) comment = existingRating.getComment();
 
-        Rating newRating = new Rating(existingRating.getMediaId(), loggedInUserId,stars,comment, existingRating.isCommentConfirmed());
+        Rating newRating = new Rating(existingRating.getMediaId(), loggedInUserId,stars,comment, false);
         newRating.setId(ratingId);
 
         try(UnitOfWork uow = new UnitOfWork()){

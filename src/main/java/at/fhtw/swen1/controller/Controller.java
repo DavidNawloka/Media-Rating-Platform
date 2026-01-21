@@ -1,6 +1,7 @@
 package at.fhtw.swen1.controller;
 
 import at.fhtw.swen1.dto.ErrorResponse;
+import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.service.AuthService;
 import at.fhtw.swen1.util.JsonUtil;
 import com.sun.net.httpserver.HttpExchange;
@@ -25,7 +26,7 @@ public abstract class Controller implements HttpHandler {
     @Override
     public abstract void handle(HttpExchange exchange) throws IOException;
 
-    protected <T> T getDTO(HttpExchange exchange, Class<T> expectedDTO) throws IOException {
+    protected <T> T getDTO(HttpExchange exchange, Class<T> expectedDTO) throws IOException, ValidationException {
         InputStream requestBody = exchange.getRequestBody();
         String json = new String(requestBody.readAllBytes());
         return JsonUtil.fromJson(json, expectedDTO);

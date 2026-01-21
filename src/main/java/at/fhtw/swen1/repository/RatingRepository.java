@@ -115,7 +115,7 @@ public class RatingRepository {
         }
     }
     public Rating save(Rating rating, UnitOfWork uow) {
-        String sql = "INSERT INTO ratings (media_id, user_id, stars, comment) VALUES (?, ?, ?, ?) RETURNING id";
+        String sql = "INSERT INTO ratings (media_id, user_id, stars, comment) VALUES (?, ?, ?, ?) RETURNING id, created_at";
         try{
             PreparedStatement stmt = uow.prepareStatement(sql);
             stmt.setInt(1, rating.getMediaId());
@@ -127,6 +127,7 @@ public class RatingRepository {
 
             if(rs.next()){
                 rating.setId(rs.getInt("id"));
+                rating.setCreatedAt(rs.getTimestamp("created_at"));
                 return rating;
             }
             return null;

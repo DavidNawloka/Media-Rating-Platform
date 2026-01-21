@@ -140,6 +140,7 @@ public class MediaService {
         for(Media media: mediaList){
             int[] genreIds = mediaGenreRepository.findGenreIdsByMediaId(media.getId());
             media.setGenreIds(genreIds);
+            media.setRatings(ratingRepository.findByMediaId(media.getId()));
         }
         return mediaList;
     }

@@ -256,6 +256,9 @@ public class MediaController extends Controller {
             sendResponse(exchange,200, JsonUtil.toJson(newMedia));
 
         }
+        catch(ValidationException e){
+            handleError("Rating entry data incorrect", e.getMessage(), 400, exchange);
+        }
         catch(NotExistsException e){
             handleError("Media entry or genre does not exist", e.getMessage(), 404, exchange);
 

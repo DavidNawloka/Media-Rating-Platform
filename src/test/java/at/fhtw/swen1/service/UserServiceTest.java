@@ -3,6 +3,7 @@ package at.fhtw.swen1.service;
 import at.fhtw.swen1.dto.ProfileResponse;
 import at.fhtw.swen1.exception.AlreadyExistsException;
 import at.fhtw.swen1.exception.NotExistsException;
+import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.Genre;
 import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.repository.GenreRepository;
@@ -66,13 +67,13 @@ class UserServiceTest {
         users.add(new User("user2","u2@gmail.com","hash"));
         when(userRepository.findMostActiveUsers()).thenReturn(users);
 
-        ArrayList<User> result = userService.getLeaderboard();
+        ArrayList<ProfileResponse> result = userService.getLeaderboard();
 
         assertEquals(2, result.size());
     }
 
     @Test
-    void updateUserProfile_Success() throws NotExistsException, AlreadyExistsException{
+    void updateUserProfile_Success() throws NotExistsException, AlreadyExistsException, ValidationException {
         try(MockedConstruction<UnitOfWork> mocked = Mockito.mockConstruction(UnitOfWork.class)) {
             when(genreRepository.getGenre(1)).thenReturn(new Genre());
             when(userRepository.findByEmail("new@gmail.com")).thenReturn(null);

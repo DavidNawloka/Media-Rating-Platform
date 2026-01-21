@@ -3,12 +3,15 @@ package at.fhtw.swen1.service;
 import at.fhtw.swen1.dto.ProfileResponse;
 import at.fhtw.swen1.exception.NotExistsException;
 import at.fhtw.swen1.exception.AlreadyExistsException;
+import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.Rating;
 import at.fhtw.swen1.model.User;
 import at.fhtw.swen1.repository.GenreRepository;
 import at.fhtw.swen1.repository.RatingRepository;
 import at.fhtw.swen1.repository.UnitOfWork;
 import at.fhtw.swen1.repository.UserRepository;
+import at.fhtw.swen1.service.validation.AuthValidationService;
+
 import java.util.ArrayList;
 
 public class UserService {
@@ -34,11 +37,27 @@ public class UserService {
 
     }
 
-    public ArrayList<User> getLeaderboard(){
-        return userRepository.findMostActiveUsers();
+    public ArrayList<ProfileResponse> getLeaderboard(){
+
+        ArrayList<User> users = userRepository.findMostActiveUsers();
+
+        ArrayList<ProfileResponse> profiles = new ArrayList<>();
+        for(User user : users){
+            ArrayList<Rating> ratings = ratingRepository.findByUserId(user.getId());
+
+            int totalRatings = ratings.size();
+            float averageScore = (float) ratings.stream().mapToInt(Rating::getStars).average().orElse(0);
+            profiles.add(new ProfileResponse(user,totalRatings,averageScore));
+        }
+
+        return profiles;
     }
 
-    public ProfileResponse updateUserProfile(String username, String email, Integer favoriteGenreId, int userId) throws NotExistsException, AlreadyExistsException {
+    public ProfileResponse updateUserProfile(String username, String email, Integer favoriteGenreId, int userId) throws NotExistsException, AlreadyExistsException, ValidationException {
+
+        if(username == null || username.isEmpty() || email == null || email.isEmpty()){
+            throw new ValidationException("No username or email was given! ");
+        }
 
         if(favoriteGenreId != null && genreRepository.getGenre(favoriteGenreId) == null){
             throw new NotExistsException("Genre ID: " + favoriteGenreId + " does not exist.");

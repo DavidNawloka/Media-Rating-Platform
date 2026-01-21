@@ -4,6 +4,7 @@ import at.fhtw.swen1.dto.ProfileResponse;
 import at.fhtw.swen1.dto.ProfileUpdateRequest;
 import at.fhtw.swen1.exception.NotExistsException;
 import at.fhtw.swen1.exception.AlreadyExistsException;
+import at.fhtw.swen1.exception.ValidationException;
 import at.fhtw.swen1.model.Media;
 import at.fhtw.swen1.model.Rating;
 import at.fhtw.swen1.model.User;
@@ -81,7 +82,7 @@ public class UserController extends Controller{
             int loggedInUserId = getLoggedInUserId(exchange);
             if(loggedInUserId == -1) return;
 
-            ArrayList<User> leaderboard = userService.getLeaderboard();
+            ArrayList<ProfileResponse> leaderboard = userService.getLeaderboard();
 
             String responseJson = JsonUtil.toJson(leaderboard);
             sendResponse(exchange, 200, responseJson);
@@ -204,7 +205,10 @@ public class UserController extends Controller{
 
             sendResponse(exchange,200, JsonUtil.toJson(profileResponse));
 
-        }catch(AlreadyExistsException e){
+        }catch(ValidationException e){
+            handleError("Validation error", e.getMessage(), 400, exchange);
+        }
+        catch(AlreadyExistsException e){
             handleError("User already exists", e.getMessage(), 409, exchange);
         }
         catch(NotExistsException e){
