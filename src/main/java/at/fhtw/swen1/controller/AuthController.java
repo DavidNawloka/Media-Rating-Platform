@@ -44,7 +44,7 @@ public class AuthController extends Controller {
 
             Session session = authService.login(loginRequest.getUsernameOrEmail(), loginRequest.getPassword());
 
-            AuthResponse response = new AuthResponse(session.getToken());
+            AuthResponse response = new AuthResponse(session.getToken(), session.getUserId());
 
             String responseJson = JsonUtil.toJson(response);
             sendResponse(exchange,200, responseJson);
@@ -69,7 +69,8 @@ public class AuthController extends Controller {
             Session createdSession = authService.register(registerRequest.getUsername(), registerRequest.getEmail(), registerRequest.getPassword());
 
             AuthResponse response = new AuthResponse(
-                    createdSession.getToken()
+                    createdSession.getToken(),
+                    createdSession.getUserId()
             );
 
             String responseJson = JsonUtil.toJson(response);

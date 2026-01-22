@@ -424,8 +424,3 @@ INSERT INTO rating_likes (rating_id, user_id) VALUES
                                                   (111, 2), (111, 3), (111, 5), (111, 6), (111, 8), (111, 9),
                                                   (117, 1), (117, 4), (117, 7), (117, 10);
 
--- Done!
-SELECT 'Seeding complete!' AS status;
-SELECT 'Users: ' || COUNT(*) FROM users;
-SELECT 'Media: ' || COUNT(*) FROM media;
-SELECT 'Ratings: ' || COUNT(*) FROM ratings;

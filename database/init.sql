@@ -1,5 +1,5 @@
 -- Initialize MRP Database
-\echo 'Creating MRP database tables...'
+
 
 CREATE TABLE IF NOT EXISTS genres (
                                       id SERIAL PRIMARY KEY,
@@ -75,5 +75,3 @@ CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token);
 
-
-\echo 'Database initialization complete!'
