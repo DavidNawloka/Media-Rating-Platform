@@ -40,7 +40,7 @@ steps:
   # Deploy to web app
   - task: AzureWebApp@1
     inputs:
-      azureSubscription: 'Web App'
+      azureSubscription: 'tfRg_Connection'
       appType: 'webApp'
       appName: 'webAppBackendJava'
       package: '$(Build.ArtifactStagingDirectory)/**/*.jar'
