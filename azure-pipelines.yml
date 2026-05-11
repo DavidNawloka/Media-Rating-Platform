@@ -40,8 +40,8 @@ steps:
   # Deploy to web app
   - task: AzureWebApp@1
     inputs:
-      azureSubscription: '<your-authorized-service-connection>'
+      azureSubscription: 'Web App'
       appType: 'webApp'
-      appName: '<your-app-name>'
+      appName: 'webAppBackendJava'
       package: '$(Build.ArtifactStagingDirectory)/**/*.jar'
       deploymentMethod: 'auto'
