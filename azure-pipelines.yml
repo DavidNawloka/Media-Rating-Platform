@@ -21,3 +21,27 @@ steps:
       publishJUnitResults: true
       testResultsFiles: '**/TEST-*.xml'
       goals: 'package'
+  # next steps:
+  # Publish your build output to your pipeline. Package and publish your app in a Maven package or a .war/jar file to deploy it to a web application.
+
+  # Copy build files into .jar file
+  - task: CopyFiles@2
+    inputs:
+      #SourceFolder: # string. Source Folder.
+      Contents: '**/target/*.jar' # string. Required. Contents. Default: **.
+      TargetFolder: '$(build.artifactstagingdirectory)' # string. Required. Target Folder.
+  # publish .jar to devops pipeline
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)' # string. Required. Path to publish. Default: $(Build.ArtifactStagingDirectory).
+      ArtifactName: 'drop' # string. Required. Artifact name. Default: drop.
+      publishLocation: 'Container'
+
+  # Deploy to web app
+  - task: AzureWebApp@1
+    inputs:
+      azureSubscription: '<your-authorized-service-connection>'
+      appType: 'webApp'
+      appName: '<your-app-name>'
+      package: '$(Build.ArtifactStagingDirectory)/**/*.jar'
+      deploymentMethod: 'auto'
