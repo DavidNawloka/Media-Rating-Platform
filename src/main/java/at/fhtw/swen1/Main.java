@@ -34,7 +34,8 @@ public class Main {
             Controller mediaController = new MediaController(authService,mediaService,ratingService,favoriteService);
             Controller ratingController = new RatingController(authService, ratingService);
 
-            serverConfig = new ServerConfig(8080);
+            int port = Integer.parseInt(System.getenv().getOrDefault("PORT", "8080"));
+            serverConfig = new ServerConfig(port);
             serverConfig.registerRoutes(authController, userController, mediaController,ratingController);
             serverConfig.start();
 
@@ -42,6 +43,7 @@ public class Main {
 
         }catch(Exception e){
             System.out.println("Server threw exception: " +  e.getMessage());
+            e.printStackTrace();
         }
     }
 
