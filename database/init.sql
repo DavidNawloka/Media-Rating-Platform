@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS genres (
                                       name VARCHAR(50) NOT NULL UNIQUE
 );
 
-INSERT INTO genres (name) VALUES ('Action'), ('Adventure'), ('Comedy'), ('Drama'), ('Fantasy'), ('Horror'), ('Mystery'), ('Romance'), ('Sci-Fi'), ('Thriller'), ('War'), ('Western');
+INSERT INTO genres (name) VALUES ('Action'), ('Adventure'), ('Comedy'), ('Drama'), ('Fantasy'), ('Horror'), ('Mystery'), ('Romance'), ('Sci-Fi'), ('Thriller'), ('War'), ('Western')
+ON CONFLICT (name) DO NOTHING;
 
 
 -- Create users table

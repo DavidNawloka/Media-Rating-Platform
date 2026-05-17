@@ -1,7 +1,4 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+# Build, apply DB schema, and deploy the Java backend to Azure App Service.
 
 trigger:
 - master
@@ -9,8 +6,13 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-# Build Java Project
+variables:
+  pgHost: 'psqlflexibleserver-media-rating.postgres.database.azure.com'
+  pgUser: 'psqladmin'
+  pgDb: 'db-media-rating'
+
 steps:
+  # Build the fat JAR
   - task: Maven@4
     inputs:
       mavenPomFile: 'pom.xml'
@@ -21,27 +23,43 @@ steps:
       publishJUnitResults: true
       testResultsFiles: '**/TEST-*.xml'
       goals: 'package'
-  # next steps:
-  # Publish your build output to your pipeline. Package and publish your app in a Maven package or a .war/jar file to deploy it to a web application.
 
-  # Copy build files into .jar file
+  # Copy only the shaded jar (exclude the `original-*.jar` that maven-shade-plugin leaves behind)
   - task: CopyFiles@2
     inputs:
-      #SourceFolder: # string. Source Folder.
-      Contents: '**/target/*.jar' # string. Required. Contents. Default: **.
-      TargetFolder: '$(build.artifactstagingdirectory)' # string. Required. Target Folder.
-  # publish .jar to devops pipeline
+      Contents: |
+        **/target/*.jar
+        !**/target/original-*.jar
+      TargetFolder: '$(build.artifactstagingdirectory)'
+      flattenFolders: true
+
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)' # string. Required. Path to publish. Default: $(Build.ArtifactStagingDirectory).
-      ArtifactName: 'drop' # string. Required. Artifact name. Default: drop.
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'drop'
       publishLocation: 'Container'
 
-  # Deploy to web app
+  # Apply the DB schema. init.sql is idempotent.
+  # dbPassword must be defined as a SECRET pipeline variable in the Azure DevOps UI:
+  #   Pipelines -> (this pipeline) -> Edit -> Variables -> New variable
+  #   Name: dbPassword   Value: <the DB admin password>   [x] Keep this value secret
+  - script: |
+      set -euo pipefail
+      sudo apt-get update -qq
+      sudo apt-get install -y --no-install-recommends postgresql-client
+      PGPASSWORD="$(dbPassword)" psql \
+        "host=$(pgHost) port=5432 dbname=$(pgDb) user=$(pgUser) sslmode=require" \
+        -v ON_ERROR_STOP=1 \
+        -f database/init.sql
+    displayName: 'Apply DB schema (idempotent)'
+    env:
+      DB_PASSWORD_SECRET: $(dbPassword)   # forces ADO to map the secret into the step
+
+  # Deploy the JAR to App Service. OneDeploy renames it to /home/site/wwwroot/app.jar.
   - task: AzureWebApp@1
     inputs:
       azureSubscription: 'tfRg_Connection'
       appType: 'webApp'
       appName: 'webAppBackendJava'
-      package: '$(Build.ArtifactStagingDirectory)/**/*.jar'
+      package: '$(Build.ArtifactStagingDirectory)/*.jar'
       deploymentMethod: 'auto'
